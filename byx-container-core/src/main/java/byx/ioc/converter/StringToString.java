@@ -2,6 +2,11 @@ package byx.ioc.converter;
 
 import byx.ioc.core.ValueConverter;
 
+/**
+ * String -> String
+ *
+ * @author byx
+ */
 public class StringToString implements ValueConverter {
     @Override
     public Class<?> fromType() {

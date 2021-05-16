@@ -3,7 +3,7 @@ package byx.ioc.core;
 import java.util.Set;
 
 /**
- * IOC容器
+ * IOC容器顶层接口
  *
  * @author byx
  */

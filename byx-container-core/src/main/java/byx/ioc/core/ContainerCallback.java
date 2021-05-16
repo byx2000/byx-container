@@ -8,6 +8,7 @@ package byx.ioc.core;
 public interface ContainerCallback {
     /**
      * 容器初始化完后回调
+     *
      * @param container 容器
      * @param registry 对象注册器
      */
@@ -17,6 +18,7 @@ public interface ContainerCallback {
 
     /**
      * 指定回调器执行的顺序，数字小的先执行
+     *
      * @return 顺序值
      */
     default int getOrder() {

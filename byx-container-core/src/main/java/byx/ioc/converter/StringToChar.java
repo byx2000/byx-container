@@ -2,6 +2,11 @@ package byx.ioc.converter;
 
 import byx.ioc.core.ValueConverter;
 
+/**
+ * String -> char
+ *
+ * @author byx
+ */
 public class StringToChar implements ValueConverter {
     @Override
     public Class<?> fromType() {

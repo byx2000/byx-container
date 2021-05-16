@@ -2,6 +2,11 @@ package byx.ioc.converter;
 
 import byx.ioc.core.ValueConverter;
 
+/**
+ * String -> double
+ *
+ * @author byx
+ */
 public class StringToDouble implements ValueConverter {
     @Override
     public Class<?> fromType() {

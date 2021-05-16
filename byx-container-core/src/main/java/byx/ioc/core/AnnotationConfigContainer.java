@@ -13,7 +13,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 通过注解来配置的容器
+ *
+ * @author byx
+ */
 public class AnnotationConfigContainer extends AbstractContainer {
+    /**
+     * 创建一个AnnotationConfigContainer
+     *
+     * @param basePackage 基准包名
+     */
     public AnnotationConfigContainer(String basePackage) {
         new AnnotationScanner(basePackage)
                 .getClassesAnnotatedBy(Component.class)
@@ -21,10 +31,18 @@ public class AnnotationConfigContainer extends AbstractContainer {
         afterContainerInit();
     }
 
+    /**
+     * 创建一个AnnotationConfigContainer
+     *
+     * @param baseClass 基准类
+     */
     public AnnotationConfigContainer(Class<?> baseClass) {
         this(baseClass.getPackageName());
     }
 
+    /**
+     * 处理被Component标注的类
+     */
     private void processClass(Class<?> type) {
         // 获取实例化的构造函数
         Constructor<?> constructor = getConstructor(type);
@@ -130,6 +148,9 @@ public class AnnotationConfigContainer extends AbstractContainer {
         return dependencies;
     }
 
+    /**
+     * 处理被Component标注的方法
+     */
     private void processMethod(Class<?> instanceType, Method method) {
         // 获取方法参数注入类型
         Class<?>[] paramTypes = method.getParameterTypes();
@@ -194,6 +215,9 @@ public class AnnotationConfigContainer extends AbstractContainer {
         registerObject(id, definition);
     }
 
+    /**
+     * 处理Value注解
+     */
     private void processValue(Class<?> type) {
         List<Value> values = new ArrayList<>();
         if (type.isAnnotationPresent(Value.class)) {

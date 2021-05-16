@@ -6,15 +6,54 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * 抽象容器
+ * 包含对扩展组件的加载和循环依赖的检测预处理
+ * 通过JDK自带的SPI机制来加载扩展组件
+ * 扩展组件包括ObjectCallback、ContainerCallback和ValueConverter
+ * ObjectCallback类似于Spring的BeanPostProcessor
+ * ContainerCallback类似于Spring的ApplicationListener
+ * ValueConverter用于转换不同数据类型的值
+ * 使用基于拓扑排序的循环依赖检测算法
+ * 以及基于二级缓存的循环依赖处理算法
+ *
+ * @author byx
+ */
 public abstract class AbstractContainer implements Container {
+    /**
+     * 保存所有ObjectDefinition
+     */
     private final Map<String, ObjectDefinition> definitions = new HashMap<>();
+
+    /**
+     * 一级缓存：存放已完全初始化的对象
+     */
     private final Map<String, Object> cache1 = new HashMap<>();
+
+    /**
+     * 二级缓存：存放已实例化对象的工厂
+     * 该工厂包含对已实例化对象的代理操作
+     * 通过调用ObjectDefinition的doWrap方法
+     */
     private final Map<String, Supplier<Object>> cache2 = new HashMap<>();
+
+    /**
+     * 保存所有对象回调器
+     */
     private static final List<ObjectCallback> OBJECT_CALLBACKS;
+
+    /**
+     * 保存所有容器回调器
+     */
     private static final List<ContainerCallback> CONTAINER_CALLBACKS;
+
+    /**
+     * 保存所有值转换器
+     */
     private static final List<ValueConverter> VALUE_CONVERTERS;
 
     static {
+        // 加载扩展组件
         OBJECT_CALLBACKS = loadObjectCallbacks();
         OBJECT_CALLBACKS.sort(Comparator.comparingInt(ObjectCallback::getOrder));
         CONTAINER_CALLBACKS = loadContainerCallbacks();
@@ -22,13 +61,9 @@ public abstract class AbstractContainer implements Container {
         VALUE_CONVERTERS = loadValueConverters();
     }
 
-    public AbstractContainer() {
-        /*objectCallbacks = loadObjectCallbacks();
-        objectCallbacks.sort(Comparator.comparingInt(ObjectCallback::getOrder));
-        containerCallbacks = loadContainerCallbacks();
-        containerCallbacks.sort(Comparator.comparingInt(ContainerCallback::getOrder));*/
-    }
-
+    /**
+     * 加载所有ObjectCallback
+     */
     private static List<ObjectCallback> loadObjectCallbacks() {
         List<ObjectCallback> ocs = new ArrayList<>();
         for (ObjectCallback oc : ServiceLoader.load(ObjectCallback.class)) {
@@ -37,6 +72,9 @@ public abstract class AbstractContainer implements Container {
         return ocs;
     }
 
+    /**
+     * 加载所有ContainerCallback
+     */
     private static List<ContainerCallback> loadContainerCallbacks() {
         List<ContainerCallback> ccs = new ArrayList<>();
         for (ContainerCallback cc : ServiceLoader.load(ContainerCallback.class)) {
@@ -45,6 +83,9 @@ public abstract class AbstractContainer implements Container {
         return ccs;
     }
 
+    /**
+     * 加载所有ValueConverter
+     */
     private static List<ValueConverter> loadValueConverters() {
         List<ValueConverter> vcs = new ArrayList<>();
         for (ValueConverter vc : ServiceLoader.load(ValueConverter.class)) {
@@ -53,17 +94,33 @@ public abstract class AbstractContainer implements Container {
         return vcs;
     }
 
+    /**
+     * 子类通过调用该方法来向容器中注册对象
+     *
+     * @param id id
+     * @param definition 对象定义
+     */
     protected void registerObject(String id, ObjectDefinition definition) {
         definitions.put(id, definition);
         checkCircularDependency();
     }
 
+    /**
+     * 子类初始化好容器后需要调用该方法，以调用扩展组件的回调方法
+     */
     protected void afterContainerInit() {
         for (ContainerCallback cc : CONTAINER_CALLBACKS) {
             cc.afterContainerInit(this, definitions::put);
         }
     }
 
+    /**
+     * 子类通过调用该方法来获取指定的值转换器
+     *
+     * @param fromType 源类型
+     * @param toType 目标类型
+     * @return 返回指定的转换器，如果找不到则返回null
+     */
     protected ValueConverter getValueConverter(Class<?> fromType, Class<?> toType) {
         for (ValueConverter vc : VALUE_CONVERTERS) {
             if (vc.fromType() == fromType && vc.toType() == toType) {

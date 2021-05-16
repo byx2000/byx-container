@@ -2,6 +2,11 @@ package byx.ioc.converter;
 
 import byx.ioc.core.ValueConverter;
 
+/**
+ * String -> boolean
+ *
+ * @author byx
+ */
 public class StringToBoolean implements ValueConverter {
     @Override
     public Class<?> fromType() {
