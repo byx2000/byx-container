@@ -1,0 +1,25 @@
+package byx.ioc.converter;
+
+import byx.ioc.core.ValueConverter;
+
+public class StringToChar implements ValueConverter {
+    @Override
+    public Class<?> fromType() {
+        return String.class;
+    }
+
+    @Override
+    public Class<?> toType() {
+        return char.class;
+    }
+
+    @Override
+    public Object convert(Object obj) {
+        return ((String) obj).charAt(0);
+    }
+
+    @Override
+    public Object convertBack(Object obj) {
+        return obj.toString();
+    }
+}

@@ -1,0 +1,339 @@
+package byx.ioc.core;
+
+import byx.ioc.exception.*;
+
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+public abstract class AbstractContainer implements Container {
+    private final Map<String, ObjectDefinition> definitions = new HashMap<>();
+    private final Map<String, Object> cache1 = new HashMap<>();
+    private final Map<String, Supplier<Object>> cache2 = new HashMap<>();
+    private static final List<ObjectCallback> OBJECT_CALLBACKS;
+    private static final List<ContainerCallback> CONTAINER_CALLBACKS;
+    private static final List<ValueConverter> VALUE_CONVERTERS;
+
+    static {
+        OBJECT_CALLBACKS = loadObjectCallbacks();
+        OBJECT_CALLBACKS.sort(Comparator.comparingInt(ObjectCallback::getOrder));
+        CONTAINER_CALLBACKS = loadContainerCallbacks();
+        CONTAINER_CALLBACKS.sort(Comparator.comparingInt(ContainerCallback::getOrder));
+        VALUE_CONVERTERS = loadValueConverters();
+    }
+
+    public AbstractContainer() {
+        /*objectCallbacks = loadObjectCallbacks();
+        objectCallbacks.sort(Comparator.comparingInt(ObjectCallback::getOrder));
+        containerCallbacks = loadContainerCallbacks();
+        containerCallbacks.sort(Comparator.comparingInt(ContainerCallback::getOrder));*/
+    }
+
+    private static List<ObjectCallback> loadObjectCallbacks() {
+        List<ObjectCallback> ocs = new ArrayList<>();
+        for (ObjectCallback oc : ServiceLoader.load(ObjectCallback.class)) {
+            ocs.add(oc);
+        }
+        return ocs;
+    }
+
+    private static List<ContainerCallback> loadContainerCallbacks() {
+        List<ContainerCallback> ccs = new ArrayList<>();
+        for (ContainerCallback cc : ServiceLoader.load(ContainerCallback.class)) {
+            ccs.add(cc);
+        }
+        return ccs;
+    }
+
+    private static List<ValueConverter> loadValueConverters() {
+        List<ValueConverter> vcs = new ArrayList<>();
+        for (ValueConverter vc : ServiceLoader.load(ValueConverter.class)) {
+            vcs.add(vc);
+        }
+        return vcs;
+    }
+
+    protected void registerObject(String id, ObjectDefinition definition) {
+        definitions.put(id, definition);
+        checkCircularDependency();
+    }
+
+    protected void afterContainerInit() {
+        for (ContainerCallback cc : CONTAINER_CALLBACKS) {
+            cc.afterContainerInit(this, definitions::put);
+        }
+    }
+
+    protected ValueConverter getValueConverter(Class<?> fromType, Class<?> toType) {
+        for (ValueConverter vc : VALUE_CONVERTERS) {
+            if (vc.fromType() == fromType && vc.toType() == toType) {
+                return vc;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public  <T> T getObject(String id) {
+        checkIdExist(id);
+        return (T) createOrGetObject(id, definitions.get(id));
+    }
+
+    @Override
+    public  <T> T getObject(Class<T> type) {
+        List<String> candidates = definitions.keySet().stream()
+                .filter(id -> type.isAssignableFrom(definitions.get(id).getType()))
+                .collect(Collectors.toList());
+
+        if (candidates.size() == 0) {
+            throw new TypeNotFoundException(type);
+        } else if (candidates.size() > 1) {
+            throw new MultiTypeMatchException(type);
+        }
+
+        return getObject(candidates.get(0));
+    }
+
+    @Override
+    public <T> T getObject(String id, Class<T> type) {
+        Object obj = getObject(id);
+        if (!type.isAssignableFrom(obj.getClass())) {
+            throw new TypeNotFoundException(type);
+        }
+        return type.cast(obj);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Set<T> getObjects(Class<T> type) {
+        Set<Object> objects = definitions.keySet().stream()
+                .filter(id -> type.isAssignableFrom(definitions.get(id).getType()))
+                .map(id -> createOrGetObject(id, definitions.get(id)))
+                .collect(Collectors.toSet());
+        return (Set<T>) objects;
+    }
+
+    @Override
+    public Set<String> getObjectIds() {
+        return new HashSet<>(definitions.keySet());
+    }
+
+    @Override
+    public Set<Class<?>> getObjectTypes() {
+        return definitions.values().stream()
+                .map(ObjectDefinition::getType)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * 创建依赖项
+     */
+    private Object createDependency(Dependency dependency) {
+        if (dependency.getId() != null) {
+            return getObject(dependency.getId());
+        } else if (dependency.getType() != null) {
+            return getObject(dependency.getType());
+        }
+        throw new BadDependencyException(dependency);
+    }
+
+    /**
+     * 创建依赖数组
+     */
+    private Object[] createDependencies(Dependency[] dependencies) {
+        Object[] params = new Object[dependencies.length];
+        for (int i = 0; i < dependencies.length; ++i) {
+            params[i] = createDependency(dependencies[i]);
+        }
+        return params;
+    }
+
+    /**
+     * 获取类型对应的id
+     */
+    private String getTypeId(Class<?> type) {
+        List<String> candidates = definitions.keySet().stream()
+                .filter(id -> type.isAssignableFrom(definitions.get(id).getType()))
+                .collect(Collectors.toList());
+
+        if (candidates.size() != 1) {
+            return null;
+        }
+
+        return candidates.get(0);
+    }
+
+    /**
+     * 创建/获取容器中的对象
+     * 循环依赖处理的核心算法
+     *
+     * 对象创建步骤：
+     * 1. 查找一级缓存，如果找到则直接返回
+     * 2. 查找二级缓存，如果找到，则取出对象工厂，执行代理操作，然后把代理后的对象移入一级缓存，
+     *    并返回代理后的对象
+     * 3. 如果两级缓存都没找到，说明对象是第一次创建，依次执行下面的步骤：
+     *      1) 调用ObjectDefinition的getInstanceDependencies方法，获取对象实例化所需的依赖项
+     *      2) 递归调用Container的getObject方法创建依赖项
+     *      3) 调用ObjectDefinition的getInstance方法创建对象实例
+     *      4) 使用对象工厂包装刚刚创建的对象实例，工厂内部调用ObjectDefinition的doWrap方法创建代理
+     *      5) 把对象工厂放入二级缓存
+     *      6) 调用ObjectDefinition的doInit方法初始化对象（属性填充）
+     *      7) 再次尝试从缓存中获取对象，这次一定能够获取到
+     */
+    private Object createOrGetObject(String id, ObjectDefinition definition) {
+        // 查找一级缓存，如果找到则直接返回
+        if (cache1.containsKey(id)) {
+            return cache1.get(id);
+        }
+
+        // 查找二级缓存，如果找到则调用get方法，然后把二级缓存移动到一级缓存
+        if (cache2.containsKey(id)) {
+            Object obj = cache2.get(id).get();
+            cache2.remove(id);
+            cache1.put(id, obj);
+            return obj;
+        }
+
+        // 获取并创建对象实例化的依赖项
+        Object[] params = createDependencies(definition.getInstanceDependencies());
+
+        // 查找一级缓存和二级缓存，如果找到则直接返回
+        if (cache1.containsKey(id)) {
+            return cache1.get(id);
+        }
+        if (cache2.containsKey(id)) {
+            Object obj = cache2.get(id).get();
+            cache2.remove(id);
+            cache1.put(id, obj);
+            return obj;
+        }
+
+        // 实例化对象
+        Object obj = definition.getInstance(params);
+
+        // 将实例化后的对象加入二级缓存
+        cache2.put(id, () -> {
+            Object o = definition.doWrap(obj);
+
+            // 回调afterObjectWrap
+            for (ObjectCallback oc : OBJECT_CALLBACKS) {
+                o = oc.afterObjectWrap(new ObjectCallbackContext(o, this, definition, id));
+            }
+
+            return o;
+        });
+
+        // 初始化对象
+        definition.doInit(obj);
+
+        // 回调afterObjectInit
+        for (ObjectCallback oc : OBJECT_CALLBACKS) {
+            oc.afterObjectInit(new ObjectCallbackContext(obj, this, definition, id));
+        }
+
+        return createOrGetObject(id, definition);
+    }
+
+    /**
+     * 循环依赖检测
+     *
+     * 步骤：
+     * 1. 调用容器中所有ObjectDefinition的getInstanceDependencies，获取所有对象的实例化依赖项，
+     *    将依赖关系转换成一张有向图
+     * 2. 使用拓扑排序的顺序依次删除图中的节点，直到不能再删为止
+     * 3. 如果还存在未删除的节点，说明依赖图中存在环路，即产生了循环依赖
+     */
+    private void checkCircularDependency() {
+        // 初始化邻接表矩阵
+        int n = definitions.size();
+        boolean[][] adj = new boolean[n][n];
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                adj[i][j] = false;
+            }
+        }
+
+        // 获取容器中所有对象id
+        List<String> ids = new ArrayList<>(definitions.keySet());
+
+        // 构建对象的构造函数依赖图
+        for (int i = 0; i < n; ++i) {
+            String id = ids.get(i);
+            Dependency[] dependencies = definitions.get(id).getInstanceDependencies();
+            for (Dependency dep : dependencies) {
+                if (dep.getId() != null) {
+                    int j = ids.indexOf(dep.getId());
+                    if (j < 0) {
+                        return;
+                    }
+                    adj[i][j] = true;
+                } else if (dep.getType() != null) {
+                    int j = ids.indexOf(getTypeId(dep.getType()));
+                    if (j < 0) {
+                        return;
+                    }
+                    adj[i][j] = true;
+                } else {
+                    throw new BadDependencyException(dep);
+                }
+            }
+        }
+
+        // in存储所有节点的入度
+        // all集合存储当前还未排序的节点编号
+        // ready集合存储当前入度为0的节点
+        int[] in = new int[n];
+        Set<Integer> all = new HashSet<>();
+        List<Integer> ready = new ArrayList<>();
+        for (int i = 0; i < n; ++i) {
+            all.add(i);
+            in[i] = 0;
+        }
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (adj[i][j]) {
+                    in[j]++;
+                }
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            if (in[i] == 0) {
+                ready.add(i);
+            }
+        }
+
+        // 按照拓扑排序的顺序删除节点
+        while (!ready.isEmpty()) {
+            int cur = ready.remove(0);
+            all.remove(cur);
+            for (int i = 0; i < n; ++i) {
+                if (adj[cur][i]) {
+                    in[i]--;
+                    if (in[i] == 0) {
+                        ready.add(i);
+                    }
+                }
+            }
+        }
+
+        // 如果还有未排序的节点，说明依赖图中存在环路，即发生了循环依赖
+        if (!all.isEmpty()) {
+            // 获取构成循环依赖的对象id
+            List<String> circularIds = new ArrayList<>();
+            for (int i : all) {
+                circularIds.add(ids.get(i));
+            }
+            throw new CircularDependencyException(circularIds);
+        }
+    }
+
+    /**
+     * 检查id是否存在
+     */
+    private void checkIdExist(String id) {
+        if (!definitions.containsKey(id)) {
+            throw new IdNotFoundException(id);
+        }
+    }
+}
