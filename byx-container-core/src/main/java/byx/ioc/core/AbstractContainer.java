@@ -1,7 +1,11 @@
 package byx.ioc.core;
 
 import byx.ioc.exception.*;
+import byx.ioc.util.JarUtils;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -9,11 +13,13 @@ import java.util.stream.Collectors;
 /**
  * 抽象容器
  * 包含对扩展组件的加载和循环依赖的检测预处理
+ *
  * 通过JDK自带的SPI机制来加载扩展组件
  * 扩展组件包括ObjectCallback、ContainerCallback和ValueConverter
  * ObjectCallback类似于Spring的BeanPostProcessor
  * ContainerCallback类似于Spring的ApplicationListener
  * ValueConverter用于转换不同数据类型的值
+ *
  * 使用基于拓扑排序的循环依赖检测算法
  * 以及基于二级缓存的循环依赖处理算法
  *
@@ -52,6 +58,12 @@ public abstract class AbstractContainer implements Container {
      */
     private static final List<ValueConverter> VALUE_CONVERTERS;
 
+    /**
+     * 额外导入的组件
+     */
+    private final static String COMPONENTS_EXPORT_FILE_NAME = "META-INF/components/components.export";
+    private final static List<Class<?>> EXPORT_COMPONENTS;
+
     static {
         // 加载扩展组件
         OBJECT_CALLBACKS = loadObjectCallbacks();
@@ -59,6 +71,9 @@ public abstract class AbstractContainer implements Container {
         CONTAINER_CALLBACKS = loadContainerCallbacks();
         CONTAINER_CALLBACKS.sort(Comparator.comparingInt(ContainerCallback::getOrder));
         VALUE_CONVERTERS = loadValueConverters();
+
+        // 加载使用SPI导入的类
+        EXPORT_COMPONENTS = loadExportComponents();
     }
 
     /**
@@ -95,6 +110,30 @@ public abstract class AbstractContainer implements Container {
     }
 
     /**
+     * 加载使用SPI导入的类
+     */
+    private static List<Class<?>> loadExportComponents() {
+        List<Class<?>> components = new ArrayList<>();
+        try {
+            List<URL> urls = JarUtils.getJarResources(COMPONENTS_EXPORT_FILE_NAME);
+            for (URL url : urls) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+                reader.lines().forEach(line -> {
+                    try {
+                        components.add(Class.forName(line));
+                    } catch (ClassNotFoundException e) {
+                        throw new LoadJarResourceException(e);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            throw new LoadJarResourceException(e);
+        }
+
+        return components;
+    }
+
+    /**
      * 子类通过调用该方法来向容器中注册对象
      *
      * @param id id
@@ -128,6 +167,14 @@ public abstract class AbstractContainer implements Container {
             }
         }
         return null;
+    }
+
+    /**
+     * 子类通过调用该方法来获取额外导入的组件
+     * @return 组件列表
+     */
+    protected List<Class<?>> getExportComponents() {
+        return EXPORT_COMPONENTS;
     }
 
     @Override
@@ -322,13 +369,15 @@ public abstract class AbstractContainer implements Container {
                 if (dep.getId() != null) {
                     int j = ids.indexOf(dep.getId());
                     if (j < 0) {
-                        return;
+                        // 找不到依赖则直接忽略
+                        continue;
                     }
                     adj[i][j] = true;
                 } else if (dep.getType() != null) {
                     int j = ids.indexOf(getTypeId(dep.getType()));
                     if (j < 0) {
-                        return;
+                        // 找不到依赖则直接忽略
+                        continue;
                     }
                     adj[i][j] = true;
                 } else {

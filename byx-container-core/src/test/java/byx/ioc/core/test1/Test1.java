@@ -15,7 +15,7 @@ public class Test1 {
             System.out.println(id);
         }
 
-        assertEquals(8, container.getObjectIds().size());
+        assertEquals(9, container.getObjectIds().size());
 
         A a = container.getObject(A.class);
         B b1 = container.getObject("b1");

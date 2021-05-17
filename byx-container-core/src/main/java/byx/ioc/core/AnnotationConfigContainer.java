@@ -25,6 +25,10 @@ public class AnnotationConfigContainer extends AbstractContainer {
      * @param basePackage 基准包名
      */
     public AnnotationConfigContainer(String basePackage) {
+        // 扫描使用SPI机制导入的类
+        getExportComponents().forEach(this::processClass);
+
+        // 扫描指定包下的所有类
         new AnnotationScanner(basePackage)
                 .getClassesAnnotatedBy(Component.class)
                 .forEach(this::processClass);
