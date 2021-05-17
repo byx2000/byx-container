@@ -10,6 +10,7 @@
     <modules>
         <module>byx-container-core</module>
         <module>byx-container-extension-aop</module>
+        <module>byx-container-extension-jdbc</module>
     </modules>
     <packaging>pom</packaging>
 
