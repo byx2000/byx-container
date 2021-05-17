@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>byx-container</artifactId>
+        <groupId>byx.ioc</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>byx-container-extension-aop</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>byx.ioc</groupId>
+            <artifactId>byx-container-core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>byx.aop</groupId>
+            <artifactId>byx-aop</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -9,6 +9,7 @@
     <version>1.0.0</version>
     <modules>
         <module>byx-container-core</module>
+        <module>byx-container-extension-aop</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -18,6 +19,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>byx-maven-repo</id>
+            <name>byx-maven-repo</name>
+            <url>https://gitee.com/byx2000/maven-repo/raw/master/</url>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
