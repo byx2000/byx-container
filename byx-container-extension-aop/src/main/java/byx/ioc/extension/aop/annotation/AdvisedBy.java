@@ -2,10 +2,7 @@ package byx.ioc.extension.aop.annotation;
 
 import byx.ioc.annotation.Component;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * 指定增强类
@@ -14,10 +11,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Documented
 @Component
-public @interface AdviceBy {
-    /**
-     * 增强类
-     */
+public @interface AdvisedBy {
     Class<?> value();
 }

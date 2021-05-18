@@ -23,10 +23,11 @@ public class AutowiredProcessor implements ObjectCallback {
     @Override
     public void afterObjectInit(ObjectCallbackContext ctx) {
         Object obj = ctx.getObject();
-        Container container = ctx.getContainer();
-
-        processFields(obj, container);
-        processSetters(obj, container);
+        if (obj != null) {
+            Container container = ctx.getContainer();
+            processFields(obj, container);
+            processSetters(obj, container);
+        }
     }
 
     /**

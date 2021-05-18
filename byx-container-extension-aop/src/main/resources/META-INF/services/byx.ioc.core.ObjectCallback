@@ -1,1 +1,2 @@
-byx.ioc.extension.aop.callback.ByxAopProcessor
+byx.ioc.extension.aop.callback.AdvisedByProcessor
+byx.ioc.extension.aop.callback.ImplementedByProcessor

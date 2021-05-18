@@ -22,6 +22,10 @@ public class InitProcessor implements ObjectCallback {
     @Override
     public void afterObjectInit(ObjectCallbackContext ctx) {
         Object obj = ctx.getObject();
+        if (obj == null) {
+            return;
+        }
+
         Class<?> type = obj.getClass();
         Container container = ctx.getContainer();
 

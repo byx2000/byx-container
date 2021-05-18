@@ -48,6 +48,26 @@ public class AnnotationConfigContainer extends AbstractContainer {
      * 处理被Component标注的类
      */
     private void processClass(Class<?> type) {
+        // 获取id
+        String id = type.isAnnotationPresent(Id.class)
+                ? type.getAnnotation(Id.class).value()
+                : type.getCanonicalName();
+
+        if (type.isInterface()) {
+            registerObject(id, new ObjectDefinition() {
+                @Override
+                public Class<?> getType() {
+                    return type;
+                }
+
+                @Override
+                public Object getInstance(Object[] params) {
+                    return null;
+                }
+            });
+            return;
+        }
+
         // 获取实例化的构造函数
         Constructor<?> constructor = getConstructor(type);
 
@@ -75,11 +95,6 @@ public class AnnotationConfigContainer extends AbstractContainer {
                 }
             }
         };
-
-        // 获取id
-        String id = type.isAnnotationPresent(Id.class)
-                ? type.getAnnotation(Id.class).value()
-                : type.getCanonicalName();
 
         // 注册对象
         registerObject(id, definition);

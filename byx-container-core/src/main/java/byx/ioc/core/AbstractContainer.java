@@ -322,7 +322,7 @@ public abstract class AbstractContainer implements Container {
 
             // 回调afterObjectWrap
             for (ObjectCallback oc : OBJECT_CALLBACKS) {
-                o = oc.afterObjectWrap(new ObjectCallbackContext(o, this, definition, id));
+                o = oc.afterObjectWrap(new ObjectCallbackContext(o, definition.getType(), this, definition, id));
             }
 
             return o;
@@ -333,7 +333,7 @@ public abstract class AbstractContainer implements Container {
 
         // 回调afterObjectInit
         for (ObjectCallback oc : OBJECT_CALLBACKS) {
-            oc.afterObjectInit(new ObjectCallbackContext(obj, this, definition, id));
+            oc.afterObjectInit(new ObjectCallbackContext(obj, definition.getType(), this, definition, id));
         }
 
         return createOrGetObject(id, definition);

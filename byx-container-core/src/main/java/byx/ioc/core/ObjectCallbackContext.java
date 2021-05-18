@@ -7,12 +7,14 @@ package byx.ioc.core;
  */
 public class ObjectCallbackContext {
     private final Object obj;
+    private final Class<?> type;
     private final Container container;
     private final ObjectDefinition definition;
     private final String id;
 
-    public ObjectCallbackContext(Object obj, Container container, ObjectDefinition definition, String id) {
+    public ObjectCallbackContext(Object obj, Class<?> type, Container container, ObjectDefinition definition, String id) {
         this.obj = obj;
+        this.type = type;
         this.container = container;
         this.definition = definition;
         this.id = id;
@@ -23,6 +25,13 @@ public class ObjectCallbackContext {
      */
     public Object getObject() {
         return obj;
+    }
+
+    /**
+     * 获取注册类型
+     */
+    public Class<?> getType() {
+        return type;
     }
 
     /**

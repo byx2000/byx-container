@@ -1,10 +1,10 @@
 package byx.ioc.extension.aop.test1;
 
-import byx.ioc.extension.aop.annotation.AdviceBy;
+import byx.ioc.extension.aop.annotation.AdvisedBy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@AdviceBy(Advice.class)
+@AdvisedBy(Advice.class)
 public class A {
     public void f(int n) {
         assertEquals(124, n);

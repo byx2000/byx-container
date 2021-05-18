@@ -1,9 +1,6 @@
 package byx.ioc.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * 多个Value的容器
@@ -12,6 +9,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Documented
 @Component
 public @interface Values {
     Value[] value();

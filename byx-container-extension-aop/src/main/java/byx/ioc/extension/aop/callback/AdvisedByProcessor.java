@@ -4,22 +4,26 @@ import byx.aop.ByxAOP;
 import byx.ioc.core.Container;
 import byx.ioc.core.ObjectCallback;
 import byx.ioc.core.ObjectCallbackContext;
-import byx.ioc.extension.aop.annotation.AdviceBy;
+import byx.ioc.extension.aop.annotation.AdvisedBy;
 
 /**
- * ByxAOP处理器
+ * 处理AdviceBy注解
  *
  * @author byx
  */
-public class ByxAopProcessor implements ObjectCallback {
+public class AdvisedByProcessor implements ObjectCallback {
     @Override
     public Object afterObjectWrap(ObjectCallbackContext ctx) {
         Object obj = ctx.getObject();
+        if (obj == null) {
+            return null;
+        }
+
         Container container = ctx.getContainer();
 
         // 如果标注了AdviceBy注解，则创建并返回AOP代理对象
-        if (obj.getClass().isAnnotationPresent(AdviceBy.class)) {
-            Class<?> adviceClass = obj.getClass().getAnnotation(AdviceBy.class).value();
+        if (obj.getClass().isAnnotationPresent(AdvisedBy.class)) {
+            Class<?> adviceClass = obj.getClass().getAnnotation(AdvisedBy.class).value();
             return ByxAOP.getAopProxy(obj, container.getObject(adviceClass));
         }
 

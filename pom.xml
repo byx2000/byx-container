@@ -12,6 +12,7 @@
         <module>byx-container-extension-aop</module>
         <module>byx-container-extension-jdbc</module>
         <module>byx-container-extension-transaction</module>
+        <module>byx-container-extension-orm</module>
     </modules>
     <packaging>pom</packaging>
 

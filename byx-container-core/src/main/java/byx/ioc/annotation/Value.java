@@ -10,6 +10,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Repeatable(Values.class)
+@Documented
 @Component
 public @interface Value {
     Class<?> type() default String.class;

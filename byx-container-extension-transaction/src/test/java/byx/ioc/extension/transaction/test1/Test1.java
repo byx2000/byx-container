@@ -1,4 +1,4 @@
-package byx.ioc.extension.transaction;
+package byx.ioc.extension.transaction.test1;
 
 import byx.ioc.core.AnnotationConfigContainer;
 import byx.ioc.core.Container;
@@ -6,10 +6,10 @@ import byx.util.jdbc.JdbcUtils;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TransactionExtensionTest {
+public class Test1 {
     @Test
     public void test() {
-        Container container = new AnnotationConfigContainer(TransactionExtensionTest.class);
+        Container container = new AnnotationConfigContainer(Test1.class);
         for (String id : container.getObjectIds()) {
             System.out.println(id);
         }

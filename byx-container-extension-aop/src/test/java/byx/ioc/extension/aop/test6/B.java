@@ -1,9 +1,9 @@
 package byx.ioc.extension.aop.test6;
 
 import byx.ioc.annotation.Autowired;
-import byx.ioc.extension.aop.annotation.AdviceBy;
+import byx.ioc.extension.aop.annotation.AdvisedBy;
 
-@AdviceBy(AdviceB.class)
+@AdvisedBy(AdviceB.class)
 public class B {
     @Autowired
     private A a;
