@@ -1,6 +1,6 @@
-# ByxContainer声明式事务扩展
+# byx-container-extension-transaction
 
-该扩展需要配合[ByxContainerAnnotation](https://github.com/byx2000/byx-container-annotation)一起使用。
+该项目为ByxContainer的声明式事务扩展，基于[ByxTransaction](https://github.com/byx2000/byx-transaction)。
 
 ## Maven引入
 
