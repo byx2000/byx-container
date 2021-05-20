@@ -9,9 +9,7 @@ import byx.ioc.util.AnnotationScanner;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * 通过注解来配置的容器
@@ -26,12 +24,22 @@ public class AnnotationConfigContainer extends AbstractContainer {
      */
     public AnnotationConfigContainer(String basePackage) {
         // 扫描使用SPI机制导入的类
-        getExportComponents().forEach(this::processClass);
+        Set<Class<?>> classes = new HashSet<>(getExportComponents());
+
+        AnnotationScanner scanner = new AnnotationScanner(basePackage);
+
+        // 扫描使用Import注解导入的类
+        scanner.getClassesAnnotatedBy(Import.class).stream()
+                .flatMap(c -> Arrays.stream(c.getAnnotation(Import.class).value().clone()))
+                .forEach(classes::add);
 
         // 扫描指定包下的所有类
-        new AnnotationScanner(basePackage)
-                .getClassesAnnotatedBy(Component.class)
-                .forEach(this::processClass);
+        classes.addAll(scanner.getClassesAnnotatedBy(Component.class));
+
+        // 执行注解解析操作
+        classes.forEach(this::processClass);
+
+        // 容器初始化完毕
         afterContainerInit();
     }
 
