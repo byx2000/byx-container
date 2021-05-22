@@ -2,6 +2,7 @@ package byx.ioc.core.test23;
 
 import byx.ioc.core.AnnotationConfigContainer;
 import byx.ioc.core.Container;
+import byx.ioc.core.Counter;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,6 +14,7 @@ public class Test23 {
             System.out.println(id);
         }
 
+        Counter.c1 = Counter.c2 = Counter.c3 = 0;
         A a = container.getObject(A.class);
         B b = container.getObject(B.class);
         C c = container.getObject(C.class);
@@ -21,5 +23,9 @@ public class Test23 {
         assertSame(a.getC(), c);
         assertSame(b.getA(), a);
         assertSame(c.getA(), a);
+
+        assertEquals(1, Counter.c1);
+        assertEquals(1, Counter.c2);
+        assertEquals(1, Counter.c3);
     }
 }

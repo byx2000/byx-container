@@ -1,6 +1,7 @@
 package byx.ioc.core.test23;
 
 import byx.ioc.annotation.Component;
+import byx.ioc.core.Counter;
 
 @Component
 public class A {
@@ -10,6 +11,7 @@ public class A {
     public A(B b, C c) {
         this.b = b;
         this.c = c;
+        Counter.c1++;
     }
 
     public B getB() {
