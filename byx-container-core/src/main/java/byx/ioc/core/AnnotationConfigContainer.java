@@ -51,21 +51,21 @@ public class AnnotationConfigContainer extends AbstractContainer {
     }
 
     /**
-     * 注解扫描容器初始化后回调AnnotationConfigContainerCallback
-     */
-    private void afterAnnotationConfigContainerInit() {
-        getContainerCallbacks(AnnotationConfigContainerCallback.class)
-                .forEach(c -> c.afterAnnotationConfigContainerInit(
-                        new PackageContext(this, scanner, AnnotationConfigContainer.this::registerObject)));
-    }
-
-    /**
      * 创建一个AnnotationConfigContainer
      *
      * @param baseClass 基准类
      */
     public AnnotationConfigContainer(Class<?> baseClass) {
         this(baseClass.getPackageName());
+    }
+
+    /**
+     * 注解扫描容器初始化后回调AnnotationConfigContainerCallback
+     */
+    private void afterAnnotationConfigContainerInit() {
+        getContainerCallbacks(AnnotationConfigContainerCallback.class)
+                .forEach(c -> c.afterAnnotationConfigContainerInit(
+                        new PackageContext(this, scanner, this)));
     }
 
     /**

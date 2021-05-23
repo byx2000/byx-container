@@ -1,8 +1,7 @@
 package byx.ioc.core;
 
 /**
- * 对象注册器，用于动态地向容器中注册对象
- * 与ContainerCallback配合使用
+ * 对象注册器，用于向容器中注册对象
  *
  * @author byx
  */

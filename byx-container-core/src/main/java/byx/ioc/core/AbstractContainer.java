@@ -11,21 +11,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * 抽象容器
- * 包含对扩展组件的加载和循环依赖的检测预处理
- *
- * 通过JDK自带的SPI机制来加载扩展组件
- * 扩展组件包括ObjectCallback、ContainerCallback和ValueConverter
- * ObjectCallback类似于Spring的BeanPostProcessor
- * ContainerCallback类似于Spring的ApplicationListener
- * ValueConverter用于转换不同数据类型的值
- *
- * 使用基于拓扑排序的循环依赖检测算法
- * 以及基于二级缓存的循环依赖处理算法
+ * 抽象容器基类
+ * 包含对扩展组件的加载和循环依赖的检测与处理
  *
  * @author byx
  */
-public abstract class AbstractContainer implements Container {
+public abstract class AbstractContainer implements Container, ObjectRegistry {
     /**
      * 保存所有ObjectDefinition
      */
@@ -139,7 +130,8 @@ public abstract class AbstractContainer implements Container {
      * @param id id
      * @param definition 对象定义
      */
-    protected void registerObject(String id, ObjectDefinition definition) {
+    @Override
+    public void registerObject(String id, ObjectDefinition definition) {
         definitions.put(id, definition);
         checkCircularDependency();
     }
@@ -149,7 +141,7 @@ public abstract class AbstractContainer implements Container {
      */
     protected void afterContainerInit() {
         for (ContainerCallback cc : CONTAINER_CALLBACKS) {
-            cc.afterContainerInit(this, definitions::put);
+            cc.afterContainerInit(this, this);
         }
     }
 
