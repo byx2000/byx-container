@@ -1,6 +1,7 @@
 package byx.ioc.core;
 
 import byx.ioc.annotation.*;
+import byx.ioc.exception.CannotRegisterInterfaceException;
 import byx.ioc.exception.ConstructorMultiDefException;
 import byx.ioc.exception.ConstructorNotFoundException;
 import byx.ioc.exception.ValueConverterNotFoundException;
@@ -17,6 +18,8 @@ import java.util.*;
  * @author byx
  */
 public class AnnotationConfigContainer extends AbstractContainer {
+    private final AnnotationScanner scanner;
+
     /**
      * 创建一个AnnotationConfigContainer
      *
@@ -26,7 +29,8 @@ public class AnnotationConfigContainer extends AbstractContainer {
         // 扫描使用SPI机制导入的类
         Set<Class<?>> classes = new HashSet<>(getExportComponents());
 
-        AnnotationScanner scanner = new AnnotationScanner(basePackage);
+        // 初始化注解扫描器
+        scanner = new AnnotationScanner(basePackage);
 
         // 扫描使用Import注解导入的类
         scanner.getClassesAnnotatedBy(Import.class).stream()
@@ -41,6 +45,18 @@ public class AnnotationConfigContainer extends AbstractContainer {
 
         // 容器初始化完毕
         afterContainerInit();
+
+        // 注解容器初始化完毕
+        afterAnnotationConfigContainerInit();
+    }
+
+    /**
+     * 注解扫描容器初始化后回调AnnotationConfigContainerCallback
+     */
+    private void afterAnnotationConfigContainerInit() {
+        getContainerCallbacks(AnnotationConfigContainerCallback.class)
+                .forEach(c -> c.afterAnnotationConfigContainerInit(
+                        new PackageContext(this, scanner, AnnotationConfigContainer.this::registerObject)));
     }
 
     /**
@@ -62,18 +78,7 @@ public class AnnotationConfigContainer extends AbstractContainer {
                 : type.getCanonicalName();
 
         if (type.isInterface()) {
-            registerObject(id, new ObjectDefinition() {
-                @Override
-                public Class<?> getType() {
-                    return type;
-                }
-
-                @Override
-                public Object getInstance(Object[] params) {
-                    return null;
-                }
-            });
-            return;
+            throw new CannotRegisterInterfaceException(type);
         }
 
         // 获取实例化的构造函数

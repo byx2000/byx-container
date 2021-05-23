@@ -177,6 +177,20 @@ public abstract class AbstractContainer implements Container {
         return EXPORT_COMPONENTS;
     }
 
+    /**
+     * 获取特定类型的ContainerCallback
+     * @param type 类型
+     * @param <T> 类型
+     * @return ContainerCallback列表
+     */
+    protected <T extends ContainerCallback> List<T> getContainerCallbacks(Class<T> type) {
+        return CONTAINER_CALLBACKS.stream()
+                .filter(c -> type.isAssignableFrom(c.getClass()))
+                .map(type::cast)
+                .sorted(Comparator.comparingInt(ContainerCallback::getOrder))
+                .collect(Collectors.toList());
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public  <T> T getObject(String id) {
