@@ -62,4 +62,22 @@ public class Test1 {
         userDao.delete("byx", "666");
         assertEquals(3, userDao.count());
     }
+
+    @Test
+    public void test4() {
+        Container container = new AnnotationConfigContainer(Test1.class);
+        BookDao bookDao = container.getObject(BookDao.class);
+
+        List<Book> books = bookDao.listAll();
+        assertEquals(3, books.size());
+        assertEquals(1, books.get(0).getId());
+        assertEquals("b1", books.get(0).getName());
+        assertEquals(3, books.get(0).getCount());
+        assertEquals(2, books.get(1).getId());
+        assertEquals("b2", books.get(1).getName());
+        assertEquals(5, books.get(1).getCount());
+        assertEquals(3, books.get(2).getId());
+        assertEquals("b3", books.get(2).getName());
+        assertEquals(2, books.get(2).getCount());
+    }
 }

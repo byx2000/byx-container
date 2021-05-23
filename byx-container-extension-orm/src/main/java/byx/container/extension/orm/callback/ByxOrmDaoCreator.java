@@ -14,7 +14,6 @@ import byx.util.jdbc.JdbcUtils;
  * @author byx
  */
 public class ByxOrmDaoCreator implements AnnotationConfigContainerCallback {
-
     @Override
     public void afterAnnotationConfigContainerInit(PackageContext ctx) {
         ctx.getAnnotationScanner().getClassesAnnotatedBy(Dao.class).forEach(c -> {
