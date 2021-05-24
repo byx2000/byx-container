@@ -1,6 +1,6 @@
 package byx.ioc.extension.aop.test1;
 
-import byx.ioc.core.AnnotationConfigContainer;
+import byx.ioc.annotation.core.AnnotationConfigContainer;
 import byx.ioc.core.Container;
 import byx.ioc.extension.aop.Flag;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package byx.container.extension.orm.test1;
 
-import byx.ioc.core.AnnotationConfigContainer;
+import byx.ioc.annotation.core.AnnotationConfigContainer;
 import byx.ioc.core.Container;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

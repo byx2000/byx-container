@@ -1,10 +1,10 @@
 package byx.container.extension.orm.callback;
 
 import byx.container.extension.orm.annotation.Dao;
-import byx.ioc.core.AnnotationConfigContainerCallback;
+import byx.ioc.annotation.core.AnnotationConfigContainerCallback;
+import byx.ioc.annotation.core.PackageContext;
 import byx.ioc.core.Dependency;
 import byx.ioc.core.ObjectDefinition;
-import byx.ioc.core.PackageContext;
 import byx.orm.DaoGenerator;
 import byx.util.jdbc.JdbcUtils;
 

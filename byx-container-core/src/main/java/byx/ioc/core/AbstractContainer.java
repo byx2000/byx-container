@@ -158,7 +158,7 @@ public abstract class AbstractContainer implements Container, ObjectRegistry {
                 return vc;
             }
         }
-        return null;
+        throw new ValueConverterNotFoundException(fromType, toType);
     }
 
     /**

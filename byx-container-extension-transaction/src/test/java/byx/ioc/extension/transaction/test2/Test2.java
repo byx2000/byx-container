@@ -1,7 +1,7 @@
 package byx.ioc.extension.transaction.test2;
 
-import byx.ioc.core.AnnotationConfigContainer;
-import byx.ioc.exception.CannotRegisterInterfaceException;
+import byx.ioc.annotation.core.AnnotationConfigContainer;
+import byx.ioc.annotation.exception.CannotRegisterInterfaceException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

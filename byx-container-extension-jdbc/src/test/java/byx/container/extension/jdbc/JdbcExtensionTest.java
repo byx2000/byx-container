@@ -1,6 +1,6 @@
 package byx.container.extension.jdbc;
 
-import byx.ioc.core.AnnotationConfigContainer;
+import byx.ioc.annotation.core.AnnotationConfigContainer;
 import byx.ioc.core.Container;
 import byx.util.jdbc.JdbcUtils;
 import byx.util.jdbc.core.MapRowMapper;

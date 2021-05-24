@@ -1,6 +1,6 @@
 package byx.container.extension.jdbc;
 
-import byx.ioc.annotation.Component;
+import byx.ioc.annotation.annotation.Component;
 import byx.util.jdbc.JdbcUtils;
 
 import javax.sql.DataSource;

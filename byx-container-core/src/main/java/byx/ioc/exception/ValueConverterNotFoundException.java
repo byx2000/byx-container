@@ -6,7 +6,7 @@ package byx.ioc.exception;
  * @author byx
  */
 public class ValueConverterNotFoundException extends ByxContainerException {
-    public ValueConverterNotFoundException(Class<?> type) {
-        super("Cannot find ValueConverter implement for " + type);
+    public ValueConverterNotFoundException(Class<?> fromType, Class<?> toType) {
+        super("Cannot find ValueConverter from " + fromType + " to " + toType);
     }
 }

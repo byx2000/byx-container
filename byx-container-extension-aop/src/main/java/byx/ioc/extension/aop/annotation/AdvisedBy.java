@@ -1,6 +1,6 @@
 package byx.ioc.extension.aop.annotation;
 
-import byx.ioc.annotation.Component;
+import byx.ioc.annotation.annotation.Component;
 
 import java.lang.annotation.*;
 

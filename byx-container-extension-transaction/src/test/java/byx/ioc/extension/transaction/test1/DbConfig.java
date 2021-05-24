@@ -1,6 +1,6 @@
 package byx.ioc.extension.transaction.test1;
 
-import byx.ioc.annotation.Component;
+import byx.ioc.annotation.annotation.Component;
 import com.alibaba.druid.pool.DruidDataSource;
 
 import javax.sql.DataSource;

@@ -1,7 +1,7 @@
 package byx.ioc.extension.transaction.test1;
 
-import byx.ioc.annotation.Autowired;
-import byx.ioc.annotation.Component;
+import byx.ioc.annotation.annotation.Autowired;
+import byx.ioc.annotation.annotation.Component;
 import byx.util.jdbc.JdbcUtils;
 
 @Component

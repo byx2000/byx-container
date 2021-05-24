@@ -13,6 +13,7 @@
         <module>byx-container-extension-jdbc</module>
         <module>byx-container-extension-transaction</module>
         <module>byx-container-extension-orm</module>
+        <module>byx-container-annotation</module>
     </modules>
     <packaging>pom</packaging>
 

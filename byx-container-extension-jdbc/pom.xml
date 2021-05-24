@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>byx.ioc</groupId>
-            <artifactId>byx-container-core</artifactId>
+            <artifactId>byx-container-annotation</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>

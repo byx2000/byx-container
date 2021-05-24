@@ -1,0 +1,5 @@
+byx.ioc.annotation.converter.StringToInt
+byx.ioc.annotation.converter.StringToDouble
+byx.ioc.annotation.converter.StringToString
+byx.ioc.annotation.converter.StringToChar
+byx.ioc.annotation.converter.StringToBoolean

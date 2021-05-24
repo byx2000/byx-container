@@ -3,7 +3,7 @@ package byx.ioc.extension.aop.test1;
 import byx.aop.annotation.After;
 import byx.aop.annotation.Before;
 import byx.aop.annotation.Filter;
-import byx.ioc.annotation.Component;
+import byx.ioc.annotation.annotation.Component;
 import byx.ioc.extension.aop.Flag;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

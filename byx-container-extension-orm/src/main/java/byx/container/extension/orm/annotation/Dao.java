@@ -1,7 +1,5 @@
 package byx.container.extension.orm.annotation;
 
-import byx.ioc.annotation.Component;
-
 import java.lang.annotation.*;
 
 /**

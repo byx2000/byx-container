@@ -1,6 +1,6 @@
 package byx.ioc.extension.aop.test7;
 
-import byx.ioc.annotation.Component;
+import byx.ioc.annotation.annotation.Component;
 import byx.ioc.extension.aop.Flag;
 
 @Component

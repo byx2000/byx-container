@@ -1,6 +1,6 @@
 package byx.ioc.extension.transaction.test2;
 
-import byx.ioc.annotation.Component;
+import byx.ioc.annotation.annotation.Component;
 import byx.transaction.annotation.Transactional;
 
 @Component

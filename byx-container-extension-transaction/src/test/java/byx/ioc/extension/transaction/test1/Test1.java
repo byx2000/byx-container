@@ -1,6 +1,6 @@
 package byx.ioc.extension.transaction.test1;
 
-import byx.ioc.core.AnnotationConfigContainer;
+import byx.ioc.annotation.core.AnnotationConfigContainer;
 import byx.ioc.core.Container;
 import byx.util.jdbc.JdbcUtils;
 import org.junit.jupiter.api.Test;

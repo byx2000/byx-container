@@ -1,7 +1,7 @@
 package byx.ioc.extension.aop.test3;
 
-import byx.ioc.annotation.Autowired;
-import byx.ioc.annotation.Component;
+import byx.ioc.annotation.annotation.Autowired;
+import byx.ioc.annotation.annotation.Component;
 
 @Component
 public class B {
