@@ -1,7 +1,5 @@
 package byx.ioc.extension.aop.annotation;
 
-import byx.ioc.annotation.Component;
-
 import java.lang.annotation.*;
 
 /**
@@ -12,7 +10,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Component
 public @interface ImplementedBy {
     Class<?> value();
 }

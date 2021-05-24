@@ -1,8 +1,6 @@
 package byx.ioc.extension.aop.callback;
 
-import byx.ioc.core.Container;
-import byx.ioc.core.ObjectCallback;
-import byx.ioc.core.ObjectCallbackContext;
+import byx.ioc.core.*;
 import byx.ioc.extension.aop.annotation.ImplementedBy;
 import byx.util.proxy.ProxyUtils;
 import byx.util.proxy.core.MethodInterceptor;
@@ -12,16 +10,24 @@ import byx.util.proxy.core.MethodInterceptor;
  *
  * @author byx
  */
-public class ImplementedByProcessor implements ObjectCallback {
+public class ImplementedByProcessor implements AnnotationConfigContainerCallback {
     @Override
-    public Object afterObjectWrap(ObjectCallbackContext ctx) {
-        Class<?> type = ctx.getType();
-        if (type.isInterface() && type.isAnnotationPresent(ImplementedBy.class)) {
-            Container container = ctx.getContainer();
-            Class<?> implType =  type.getAnnotation(ImplementedBy.class).value();
-            Object impl = container.getObject(implType);
-            return ProxyUtils.implement(type, MethodInterceptor.delegateTo(impl));
-        }
-        return ctx.getObject();
+    public void afterAnnotationConfigContainerInit(PackageContext ctx) {
+        ctx.getAnnotationScanner().getClassesAnnotatedBy(ImplementedBy.class)
+                .forEach(c -> {
+                    Class<?> implType = c.getAnnotation(ImplementedBy.class).value();
+                    ctx.getRegistry().registerObject(c.getName(), new ObjectDefinition() {
+                        @Override
+                        public Class<?> getType() {
+                            return c;
+                        }
+
+                        @Override
+                        public Object getInstance(Object[] params) {
+                            Object impl = ctx.getContainer().getObject(implType);
+                            return ProxyUtils.implement(c, MethodInterceptor.delegateTo(impl));
+                        }
+                    });
+                });
     }
 }
