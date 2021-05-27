@@ -410,7 +410,7 @@ public abstract class AbstractContainer implements Container, ObjectRegistry, Co
     }
 
     @Override
-    public ObjectRegistry getRegistry() {
+    public ObjectRegistry getObjectRegistry() {
         return this;
     }
 

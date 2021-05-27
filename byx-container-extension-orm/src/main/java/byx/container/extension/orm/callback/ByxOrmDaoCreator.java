@@ -17,7 +17,7 @@ public class ByxOrmDaoCreator implements AnnotationConfigContainerCallback {
     @Override
     public void afterAnnotationConfigContainerInit(AnnotationConfigContainerContext ctx) {
         ctx.getAnnotationScanner().getClassesAnnotatedBy(Dao.class).forEach(c -> {
-            ctx.getRegistry().registerObject(c.getName(), new ObjectDefinition() {
+            ctx.getObjectRegistry().registerObject(c.getName(), new ObjectDefinition() {
                 @Override
                 public Class<?> getType() {
                     return c;

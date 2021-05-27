@@ -18,7 +18,7 @@ public class ImplementedByProcessor implements AnnotationConfigContainerCallback
         ctx.getAnnotationScanner().getClassesAnnotatedBy(ImplementedBy.class)
                 .forEach(c -> {
                     Class<?> implType = c.getAnnotation(ImplementedBy.class).value();
-                    ctx.getRegistry().registerObject(c.getName(), new ObjectDefinition() {
+                    ctx.getObjectRegistry().registerObject(c.getName(), new ObjectDefinition() {
                         @Override
                         public Class<?> getType() {
                             return c;

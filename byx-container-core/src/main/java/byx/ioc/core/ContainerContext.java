@@ -17,7 +17,7 @@ public interface ContainerContext {
     /**
      * 获取对象注册器
      */
-    ObjectRegistry getRegistry();
+    ObjectRegistry getObjectRegistry();
 
     /**
      * 获取对象回调器
