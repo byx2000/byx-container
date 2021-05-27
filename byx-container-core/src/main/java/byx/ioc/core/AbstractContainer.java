@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * @author byx
  */
-public abstract class AbstractContainer implements Container, ObjectRegistry {
+public abstract class AbstractContainer implements Container, ObjectRegistry, ContainerContext {
     /**
      * 保存所有ObjectDefinition
      */
@@ -53,7 +53,7 @@ public abstract class AbstractContainer implements Container, ObjectRegistry {
      * 额外导入的组件
      */
     private final static String COMPONENTS_EXPORT_FILE_NAME = "META-INF/components/components.export";
-    private final static List<Class<?>> EXPORT_COMPONENTS;
+    private final static List<Class<?>> IMPORT_COMPONENTS;
 
     static {
         // 加载扩展组件
@@ -64,7 +64,7 @@ public abstract class AbstractContainer implements Container, ObjectRegistry {
         VALUE_CONVERTERS = loadValueConverters();
 
         // 加载使用SPI导入的类
-        EXPORT_COMPONENTS = loadExportComponents();
+        IMPORT_COMPONENTS = loadImportComponents();
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class AbstractContainer implements Container, ObjectRegistry {
     /**
      * 加载使用SPI导入的类
      */
-    private static List<Class<?>> loadExportComponents() {
+    private static List<Class<?>> loadImportComponents() {
         List<Class<?>> components = new ArrayList<>();
         try {
             List<URL> urls = JarUtils.getJarResources(COMPONENTS_EXPORT_FILE_NAME);
@@ -134,53 +134,6 @@ public abstract class AbstractContainer implements Container, ObjectRegistry {
     public void registerObject(String id, ObjectDefinition definition) {
         definitions.put(id, definition);
         checkCircularDependency();
-    }
-
-    /**
-     * 子类初始化好容器后需要调用该方法，以调用扩展组件的回调方法
-     */
-    protected void afterContainerInit() {
-        for (ContainerCallback cc : CONTAINER_CALLBACKS) {
-            cc.afterContainerInit(this, this);
-        }
-    }
-
-    /**
-     * 子类通过调用该方法来获取指定的值转换器
-     *
-     * @param fromType 源类型
-     * @param toType 目标类型
-     * @return 返回指定的转换器，如果找不到则返回null
-     */
-    protected ValueConverter getValueConverter(Class<?> fromType, Class<?> toType) {
-        for (ValueConverter vc : VALUE_CONVERTERS) {
-            if (vc.fromType() == fromType && vc.toType() == toType) {
-                return vc;
-            }
-        }
-        throw new ValueConverterNotFoundException(fromType, toType);
-    }
-
-    /**
-     * 子类通过调用该方法来获取额外导入的组件
-     * @return 组件列表
-     */
-    protected List<Class<?>> getExportComponents() {
-        return EXPORT_COMPONENTS;
-    }
-
-    /**
-     * 获取特定类型的ContainerCallback
-     * @param type 类型
-     * @param <T> 类型
-     * @return ContainerCallback列表
-     */
-    protected <T extends ContainerCallback> List<T> getContainerCallbacks(Class<T> type) {
-        return CONTAINER_CALLBACKS.stream()
-                .filter(c -> type.isAssignableFrom(c.getClass()))
-                .map(type::cast)
-                .sorted(Comparator.comparingInt(ContainerCallback::getOrder))
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -328,7 +281,7 @@ public abstract class AbstractContainer implements Container, ObjectRegistry {
 
             // 回调afterObjectWrap
             for (ObjectCallback oc : OBJECT_CALLBACKS) {
-                o = oc.afterObjectWrap(new ObjectCallbackContext(o, definition.getType(), this, definition, id));
+                o = oc.afterObjectWrap(new ObjectContext(o, definition.getType(), this, definition, id));
             }
 
             return o;
@@ -339,7 +292,7 @@ public abstract class AbstractContainer implements Container, ObjectRegistry {
 
         // 回调afterObjectInit
         for (ObjectCallback oc : OBJECT_CALLBACKS) {
-            oc.afterObjectInit(new ObjectCallbackContext(obj, definition.getType(), this, definition, id));
+            oc.afterObjectInit(new ObjectContext(obj, definition.getType(), this, definition, id));
         }
 
         return createOrGetObject(id, definition);
@@ -448,4 +401,38 @@ public abstract class AbstractContainer implements Container, ObjectRegistry {
             throw new IdNotFoundException(id);
         }
     }
+
+    // 从ContainerContext继承
+
+    @Override
+    public Container getContainer() {
+        return this;
+    }
+
+    @Override
+    public ObjectRegistry getRegistry() {
+        return this;
+    }
+
+    @Override
+    public List<ObjectCallback> getObjectCallbacks() {
+        return OBJECT_CALLBACKS;
+    }
+
+    @Override
+    public List<ContainerCallback> getContainerCallbacks() {
+        return CONTAINER_CALLBACKS;
+    }
+
+    @Override
+    public List<ValueConverter> getValueConverters() {
+        return VALUE_CONVERTERS;
+    }
+
+    @Override
+    public List<Class<?>> getImportComponents() {
+        return IMPORT_COMPONENTS;
+    }
+
+    // 从ContainerContext继承 结束
 }

@@ -5,10 +5,8 @@ import byx.ioc.annotation.exception.CannotRegisterInterfaceException;
 import byx.ioc.annotation.exception.ConstructorMultiDefException;
 import byx.ioc.annotation.exception.ConstructorNotFoundException;
 import byx.ioc.annotation.util.AnnotationScanner;
-import byx.ioc.core.AbstractContainer;
-import byx.ioc.core.Dependency;
-import byx.ioc.core.ObjectDefinition;
-import byx.ioc.core.ValueConverter;
+import byx.ioc.core.*;
+import byx.ioc.exception.ValueConverterNotFoundException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -20,7 +18,7 @@ import java.util.*;
  *
  * @author byx
  */
-public class AnnotationConfigContainer extends AbstractContainer {
+public class AnnotationConfigContainer extends AbstractContainer implements AnnotationConfigContainerContext {
     private final AnnotationScanner scanner;
 
     /**
@@ -29,8 +27,8 @@ public class AnnotationConfigContainer extends AbstractContainer {
      * @param basePackage 基准包名
      */
     public AnnotationConfigContainer(String basePackage) {
-        // 扫描使用SPI机制导入的类
-        Set<Class<?>> classes = new HashSet<>(getExportComponents());
+        // 获取使用SPI机制导入的类
+        Set<Class<?>> classes = new HashSet<>(getImportComponents());
 
         // 初始化注解扫描器
         scanner = new AnnotationScanner(basePackage);
@@ -47,9 +45,6 @@ public class AnnotationConfigContainer extends AbstractContainer {
         classes.forEach(this::processClass);
 
         // 容器初始化完毕
-        afterContainerInit();
-
-        // 注解容器初始化完毕
         afterAnnotationConfigContainerInit();
     }
 
@@ -66,9 +61,11 @@ public class AnnotationConfigContainer extends AbstractContainer {
      * 注解扫描容器初始化后回调AnnotationConfigContainerCallback
      */
     private void afterAnnotationConfigContainerInit() {
-        getContainerCallbacks(AnnotationConfigContainerCallback.class)
-                .forEach(c -> c.afterAnnotationConfigContainerInit(
-                        new PackageContext(this, scanner, this)));
+        // 回调所有AnnotationConfigContainerCallback
+        getContainerCallbacks().stream()
+                .filter(c -> c instanceof AnnotationConfigContainerCallback)
+                .sorted(Comparator.comparingInt(ContainerCallback::getOrder))
+                .forEach(c -> ((AnnotationConfigContainerCallback) c).afterAnnotationConfigContainerInit(this));
     }
 
     /**
@@ -262,7 +259,7 @@ public class AnnotationConfigContainer extends AbstractContainer {
         }
 
         for (Value v : values) {
-            ValueConverter converter = getValueConverter(String.class, v.type());
+            ValueConverter converter = getValueConverter(v.type());
             String id = "".equals(v.id()) ? v.value() : v.id();
             registerObject(id, new ObjectDefinition() {
                 @Override
@@ -276,5 +273,19 @@ public class AnnotationConfigContainer extends AbstractContainer {
                 }
             });
         }
+    }
+
+    private ValueConverter getValueConverter(Class<?> toType) {
+        for (ValueConverter vc : getValueConverters()) {
+            if (vc.fromType() == String.class && vc.toType() == toType) {
+                return vc;
+            }
+        }
+        throw new ValueConverterNotFoundException(String.class, toType);
+    }
+
+    @Override
+    public AnnotationScanner getAnnotationScanner() {
+        return scanner;
     }
 }

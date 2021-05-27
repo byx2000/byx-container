@@ -11,7 +11,7 @@ public interface ObjectCallback{
      *
      * @param ctx 上下文
      */
-    default void afterObjectInit(ObjectCallbackContext ctx) {
+    default void afterObjectInit(ObjectContext ctx) {
 
     }
 
@@ -21,7 +21,7 @@ public interface ObjectCallback{
      * @param ctx 上下文
      * @return 包装后的对象
      */
-    default Object afterObjectWrap(ObjectCallbackContext ctx) {
+    default Object afterObjectWrap(ObjectContext ctx) {
         return ctx.getObject();
     }
 

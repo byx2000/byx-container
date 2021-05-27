@@ -3,7 +3,7 @@ package byx.ioc.extension.aop.callback;
 import byx.aop.ByxAOP;
 import byx.ioc.core.Container;
 import byx.ioc.core.ObjectCallback;
-import byx.ioc.core.ObjectCallbackContext;
+import byx.ioc.core.ObjectContext;
 import byx.ioc.extension.aop.annotation.AdvisedBy;
 
 /**
@@ -13,7 +13,7 @@ import byx.ioc.extension.aop.annotation.AdvisedBy;
  */
 public class AdvisedByProcessor implements ObjectCallback {
     @Override
-    public Object afterObjectWrap(ObjectCallbackContext ctx) {
+    public Object afterObjectWrap(ObjectContext ctx) {
         Object obj = ctx.getObject();
         if (obj == null) {
             return null;

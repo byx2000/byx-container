@@ -4,7 +4,7 @@ import byx.ioc.annotation.annotation.Id;
 import byx.ioc.annotation.annotation.Init;
 import byx.ioc.core.Container;
 import byx.ioc.core.ObjectCallback;
-import byx.ioc.core.ObjectCallbackContext;
+import byx.ioc.core.ObjectContext;
 import byx.ioc.annotation.exception.MultiInitMethodDefException;
 
 import java.lang.annotation.Annotation;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 public class InitProcessor implements ObjectCallback {
     @Override
-    public void afterObjectInit(ObjectCallbackContext ctx) {
+    public void afterObjectInit(ObjectContext ctx) {
         Object obj = ctx.getObject();
         if (obj == null) {
             return;

@@ -2,7 +2,7 @@ package byx.container.extension.orm.callback;
 
 import byx.container.extension.orm.annotation.Dao;
 import byx.ioc.annotation.core.AnnotationConfigContainerCallback;
-import byx.ioc.annotation.core.PackageContext;
+import byx.ioc.annotation.core.AnnotationConfigContainerContext;
 import byx.ioc.core.Dependency;
 import byx.ioc.core.ObjectDefinition;
 import byx.orm.DaoGenerator;
@@ -15,7 +15,7 @@ import byx.util.jdbc.JdbcUtils;
  */
 public class ByxOrmDaoCreator implements AnnotationConfigContainerCallback {
     @Override
-    public void afterAnnotationConfigContainerInit(PackageContext ctx) {
+    public void afterAnnotationConfigContainerInit(AnnotationConfigContainerContext ctx) {
         ctx.getAnnotationScanner().getClassesAnnotatedBy(Dao.class).forEach(c -> {
             ctx.getRegistry().registerObject(c.getName(), new ObjectDefinition() {
                 @Override

@@ -1,8 +1,8 @@
 package byx.ioc.extension.aop.callback;
 
 import byx.ioc.annotation.core.AnnotationConfigContainerCallback;
-import byx.ioc.annotation.core.PackageContext;
-import byx.ioc.core.*;
+import byx.ioc.annotation.core.AnnotationConfigContainerContext;
+import byx.ioc.core.ObjectDefinition;
 import byx.ioc.extension.aop.annotation.ImplementedBy;
 import byx.util.proxy.ProxyUtils;
 import byx.util.proxy.core.MethodInterceptor;
@@ -14,7 +14,7 @@ import byx.util.proxy.core.MethodInterceptor;
  */
 public class ImplementedByProcessor implements AnnotationConfigContainerCallback {
     @Override
-    public void afterAnnotationConfigContainerInit(PackageContext ctx) {
+    public void afterAnnotationConfigContainerInit(AnnotationConfigContainerContext ctx) {
         ctx.getAnnotationScanner().getClassesAnnotatedBy(ImplementedBy.class)
                 .forEach(c -> {
                     Class<?> implType = c.getAnnotation(ImplementedBy.class).value();

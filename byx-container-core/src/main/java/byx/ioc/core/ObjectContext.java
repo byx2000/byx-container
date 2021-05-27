@@ -1,18 +1,18 @@
 package byx.ioc.core;
 
 /**
- * 对象回调器上下文
+ * 对象上下文信息
  *
  * @author byx
  */
-public class ObjectCallbackContext {
+public class ObjectContext {
     private final Object obj;
     private final Class<?> type;
     private final Container container;
     private final ObjectDefinition definition;
     private final String id;
 
-    public ObjectCallbackContext(Object obj, Class<?> type, Container container, ObjectDefinition definition, String id) {
+    public ObjectContext(Object obj, Class<?> type, Container container, ObjectDefinition definition, String id) {
         this.obj = obj;
         this.type = type;
         this.container = container;
