@@ -416,12 +416,16 @@ public abstract class AbstractContainer implements Container, ObjectRegistry, Co
 
     @Override
     public List<ObjectCallback> getObjectCallbacks() {
-        return OBJECT_CALLBACKS;
+        return OBJECT_CALLBACKS.stream()
+                .sorted(Comparator.comparingInt(ObjectCallback::getOrder))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ContainerCallback> getContainerCallbacks() {
-        return CONTAINER_CALLBACKS;
+        return CONTAINER_CALLBACKS.stream()
+                .sorted(Comparator.comparingInt(ContainerCallback::getOrder))
+                .collect(Collectors.toList());
     }
 
     @Override

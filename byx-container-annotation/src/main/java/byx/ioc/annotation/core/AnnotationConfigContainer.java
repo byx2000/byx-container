@@ -43,7 +43,6 @@ public class AnnotationConfigContainer extends AbstractContainer implements Anno
         // 回调所有AnnotationConfigContainerCallback
         getContainerCallbacks().stream()
                 .filter(c -> c instanceof AnnotationConfigContainerCallback)
-                .sorted(Comparator.comparingInt(ContainerCallback::getOrder))
                 .forEach(c -> ((AnnotationConfigContainerCallback) c).afterAnnotationConfigContainerInit(this));
     }
 
