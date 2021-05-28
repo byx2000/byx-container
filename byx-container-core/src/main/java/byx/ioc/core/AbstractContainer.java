@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 /**
  * 抽象容器基类
  * 包含对扩展组件的加载和循环依赖的检测与处理
+ * 自定义容器可直接继承该容器，实现一些自定义的功能
  *
  * @author byx
  */
@@ -384,16 +385,12 @@ public abstract class AbstractContainer implements Container, ObjectRegistry, Co
 
     @Override
     public List<ObjectCallback> getObjectCallbacks() {
-        return OBJECT_CALLBACKS.stream()
-                .sorted(Comparator.comparingInt(ObjectCallback::getOrder))
-                .collect(Collectors.toList());
+        return OBJECT_CALLBACKS;
     }
 
     @Override
     public List<ContainerCallback> getContainerCallbacks() {
-        return CONTAINER_CALLBACKS.stream()
-                .sorted(Comparator.comparingInt(ContainerCallback::getOrder))
-                .collect(Collectors.toList());
+        return CONTAINER_CALLBACKS;
     }
 
     @Override
