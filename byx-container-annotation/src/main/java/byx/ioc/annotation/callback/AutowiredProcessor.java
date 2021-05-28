@@ -108,10 +108,4 @@ public class AutowiredProcessor implements ObjectCallback {
             }
         }
     }
-
-    @Override
-    public int getOrder() {
-        // 确保最先执行
-        return Integer.MIN_VALUE;
-    }
 }

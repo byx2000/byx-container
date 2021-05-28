@@ -1,5 +1,6 @@
 package byx.ioc.annotation.callback;
 
+import byx.ioc.annotation.Order;
 import byx.ioc.annotation.annotation.Id;
 import byx.ioc.annotation.annotation.Init;
 import byx.ioc.core.Container;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
  *
  * @author byx
  */
+@Order(before = AutowiredProcessor.class)
 public class InitProcessor implements ObjectCallback {
     @Override
     public void afterObjectInit(ObjectContext ctx) {
@@ -69,11 +71,5 @@ public class InitProcessor implements ObjectCallback {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public int getOrder() {
-        // 确保在AutowiredProcessor之后执行
-        return Integer.MIN_VALUE + 1;
     }
 }
