@@ -8,12 +8,5 @@ package byx.ioc.core;
  * @author byx
  */
 public interface ContainerCallback {
-    /**
-     * 指定回调器执行的顺序，数字小的先执行
-     *
-     * @return 顺序值
-     */
-    default int getOrder() {
-        return 1;
-    }
+
 }

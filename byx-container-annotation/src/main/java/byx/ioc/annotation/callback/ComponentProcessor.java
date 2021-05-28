@@ -41,12 +41,6 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
         classes.forEach(c -> processClass(c, ctx));
     }
 
-    @Override
-    public int getOrder() {
-        // 确保最先执行
-        return Integer.MIN_VALUE;
-    }
-
     /**
      * 处理被Component标注的类
      */

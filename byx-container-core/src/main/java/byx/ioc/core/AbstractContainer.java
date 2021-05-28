@@ -3,6 +3,7 @@ package byx.ioc.core;
 import byx.ioc.exception.*;
 import byx.ioc.util.GraphUtils;
 import byx.ioc.util.JarUtils;
+import byx.ioc.util.OrderUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -59,10 +60,8 @@ public abstract class AbstractContainer implements Container, ObjectRegistry, Co
 
     static {
         // 加载扩展组件
-        OBJECT_CALLBACKS = loadObjectCallbacks();
-        OBJECT_CALLBACKS.sort(Comparator.comparingInt(ObjectCallback::getOrder));
-        CONTAINER_CALLBACKS = loadContainerCallbacks();
-        CONTAINER_CALLBACKS.sort(Comparator.comparingInt(ContainerCallback::getOrder));
+        OBJECT_CALLBACKS = OrderUtils.sort(loadObjectCallbacks());
+        CONTAINER_CALLBACKS = OrderUtils.sort(loadContainerCallbacks());
         VALUE_CONVERTERS = loadValueConverters();
 
         // 加载使用SPI导入的类
