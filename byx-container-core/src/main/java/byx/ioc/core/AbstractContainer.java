@@ -1,6 +1,7 @@
 package byx.ioc.core;
 
 import byx.ioc.exception.*;
+import byx.ioc.util.GraphUtils;
 import byx.ioc.util.JarUtils;
 
 import java.io.BufferedReader;
@@ -345,49 +346,16 @@ public abstract class AbstractContainer implements Container, ObjectRegistry, Co
             }
         }
 
-        // in存储所有节点的入度
-        // all集合存储当前还未排序的节点编号
-        // ready集合存储当前入度为0的节点
-        int[] in = new int[n];
-        Set<Integer> all = new HashSet<>();
-        List<Integer> ready = new ArrayList<>();
-        for (int i = 0; i < n; ++i) {
-            all.add(i);
-            in[i] = 0;
-        }
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                if (adj[i][j]) {
-                    in[j]++;
-                }
-            }
-        }
-        for (int i = 0; i < n; ++i) {
-            if (in[i] == 0) {
-                ready.add(i);
-            }
-        }
+        // 拓扑排序
+        List<Integer> ordered = GraphUtils.topologicalSort(adj);
 
-        // 按照拓扑排序的顺序删除节点
-        while (!ready.isEmpty()) {
-            int cur = ready.remove(0);
-            all.remove(cur);
-            for (int i = 0; i < n; ++i) {
-                if (adj[cur][i]) {
-                    in[i]--;
-                    if (in[i] == 0) {
-                        ready.add(i);
-                    }
-                }
-            }
-        }
-
-        // 如果还有未排序的节点，说明依赖图中存在环路，即发生了循环依赖
-        if (!all.isEmpty()) {
-            // 获取构成循环依赖的对象id
+        // 检测到循环依赖，获取环路上的所有id
+        if (ordered.size() != n) {
             List<String> circularIds = new ArrayList<>();
-            for (int i : all) {
-                circularIds.add(ids.get(i));
+            for (int i = 0; i < n; ++i) {
+                if (!ordered.contains(i)) {
+                    circularIds.add(ids.get(i));
+                }
             }
             throw new CircularDependencyException(circularIds);
         }
