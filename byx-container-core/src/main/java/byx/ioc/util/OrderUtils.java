@@ -1,7 +1,9 @@
 package byx.ioc.util;
 
 import byx.ioc.annotation.Order;
+import byx.ioc.exception.CircularOrderException;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,9 +24,20 @@ public class OrderUtils {
         boolean[][] adj = getAdjacencyMatrix(objects.stream()
                 .map(Object::getClass)
                 .collect(Collectors.toList()));
-        return GraphUtils.topologicalSort(adj,
+        List<T> result = GraphUtils.topologicalSort(adj,
                 Comparator.comparingInt(i -> getOrderValue(objects.get(i).getClass())),
                 objects::get);
+        // 检测到环路
+        if (result.size() != objects.size()) {
+            List<Class<?>> circular = new ArrayList<>();
+            for (T e : objects) {
+                if (!result.contains(e)) {
+                    circular.add(e.getClass());
+                }
+            }
+            throw new CircularOrderException(circular);
+        }
+        return result;
     }
 
     private static boolean[][] getAdjacencyMatrix(List<Class<?>> classes) {
