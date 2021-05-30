@@ -14,6 +14,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Order {
     /**
+     * 当多个组件之间无before、after约束时，使用该值来决定顺序
+     */
+    int value() default 1;
+    /**
      * 在当前组件之前的组件
      */
     Class<?>[] before() default {};

@@ -1,10 +1,12 @@
 package byx.ioc.util;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 /**
- * 图工具类
+ * 图算法工具类
  *
  * @author byx
  */
@@ -12,9 +14,12 @@ public class GraphUtils {
     /**
      * 拓扑排序
      * @param adj 邻接矩阵
-     * @return 排序后的顶点索引
+     * @param comparator 对当前所有ready节点进行排序
+     * @param toElement 将节点编号转换为具体的元素
+     * @param <T> 元素类型
+     * @return 排序后的节点编号序列
      */
-    public static List<Integer> topologicalSort(boolean[][] adj) {
+    public static <T> List<T> topologicalSort(boolean[][] adj, Comparator<Integer> comparator, Function<Integer, T> toElement) {
         int n = adj.length;
 
         // 计算所有节点的入度
@@ -35,26 +40,36 @@ public class GraphUtils {
             }
         }
 
-        List<Integer> result = new ArrayList<>();
-
-        // 不停地删除入度为0的节点，直到无法继续删除
+        List<T> result = new ArrayList<>();
         while (!ready.isEmpty()) {
-            // 获取第一个入度为0的节点，从ready中移除
-            int i = ready.remove(0);
-            // 将节点添加到结果列表
-            result.add(i);
-            // 更新与之相连的节点的入度
-            for (int j = 0; j < n; ++j) {
-                if (adj[i][j]) {
-                    in[j]--;
-                    // 如果有新的节点入度变为0，则添加到ready中
-                    if (in[j] == 0) {
-                        ready.add(j);
+            // 使用传入的comparator进行排序
+            ready.sort(comparator);
+
+            List<Integer> newReady = new ArrayList<>();
+            for (int i : ready) {
+                result.add(toElement.apply(i));
+                for (int j = 0; j < n; ++j) {
+                    if (adj[i][j]) {
+                        in[j]--;
+                        // 如果有新的节点入度变为0，则添加到ready中
+                        if (in[j] == 0) {
+                            newReady.add(j);
+                        }
                     }
                 }
             }
+            ready = newReady;
         }
 
         return result;
+    }
+
+    /**
+     * 拓扑排序，返回排序后的节点数组
+     * @param adj 邻接矩阵
+     * @return 排序后的节点数组
+     */
+    public static List<Integer> topologicalSort(boolean[][] adj) {
+        return topologicalSort(adj, Comparator.comparingInt(a -> a), i -> i);
     }
 }

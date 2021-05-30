@@ -2,7 +2,7 @@ package byx.ioc.util;
 
 import byx.ioc.annotation.Order;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,52 +13,65 @@ import java.util.stream.Collectors;
  */
 public class OrderUtils {
     /**
-     * 根据Order注解对多个对象进行排序
-     * @param orders 对象列表
-     * @param <T> 对象类型
-     * @return 排序后的对象列表
+     * 根据Order注解对组件进行排序
+     * @param objects 组件列表
+     * @param <T> 类型
+     * @return 排序后的组件列表
      */
-    public static <T> List<T> sort(List<T> orders) {
-        int n = orders.size();
+    public static <T> List<T> sort(List<T> objects) {
+        boolean[][] adj = getAdjacencyMatrix(objects.stream()
+                .map(Object::getClass)
+                .collect(Collectors.toList()));
+        return GraphUtils.topologicalSort(adj,
+                Comparator.comparingInt(i -> getOrderValue(objects.get(i).getClass())),
+                objects::get);
+    }
 
-        // 构造邻接矩阵
+    private static boolean[][] getAdjacencyMatrix(List<Class<?>> classes) {
+        int n = classes.size();
         boolean[][] adj = new boolean[n][n];
-        List<Class<?>> classes = orders.stream().map(Object::getClass).collect(Collectors.toList());
+
         for (int i = 0; i < n; ++i) {
-            Object o = orders.get(i);
-            Class<?>[] before = new Class[0];
-            Class<?>[] after = new Class[0];
-            if (o.getClass().isAnnotationPresent(Order.class)) {
-                before = o.getClass().getAnnotation(Order.class).before();
-                after = o.getClass().getAnnotation(Order.class).after();
-            }
-            for (Class<?> c : before) {
+            Class<?> c = classes.get(i);
+            Class<?>[] before = getBeforeClasses(c);
+            Class<?>[] after = getAfterClasses(c);
+            for (Class<?> cc : before) {
                 for (int j = 0; j < n; ++j) {
-                    if (classes.get(j) == c) {
+                    if (classes.get(j) == cc) {
                         adj[j][i] = true;
                     }
                 }
             }
-            for (Class<?> c : after) {
+            for (Class<?> cc : after) {
                 for (int j = 0; j < n; ++j) {
-                    if (classes.get(j) == c) {
+                    if (classes.get(j) == cc) {
                         adj[i][j] = true;
                     }
                 }
             }
         }
 
-        List<Integer> ids = GraphUtils.topologicalSort(adj);
-        if (ids.size() != n) {
+        return adj;
+    }
 
-            throw new RuntimeException("循环依赖");
+    private static int getOrderValue(Class<?> c) {
+        if (c.isAnnotationPresent(Order.class)) {
+            return c.getAnnotation(Order.class).value();
         }
+        return 1;
+    }
 
-        List<T> result = new ArrayList<>();
-        for (int i : ids) {
-            result.add(orders.get(i));
+    private static Class<?>[] getBeforeClasses(Class<?> c) {
+        if (c.isAnnotationPresent(Order.class)) {
+            return c.getAnnotation(Order.class).before();
         }
+        return new Class[]{};
+    }
 
-        return result;
+    private static Class<?>[] getAfterClasses(Class<?> c) {
+        if (c.isAnnotationPresent(Order.class)) {
+            return c.getAnnotation(Order.class).after();
+        }
+        return new Class[]{};
     }
 }
