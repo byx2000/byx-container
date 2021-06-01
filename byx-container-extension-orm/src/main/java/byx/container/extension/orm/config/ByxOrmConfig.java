@@ -1,7 +1,7 @@
 package byx.container.extension.orm.config;
 
 import byx.ioc.annotation.annotation.Component;
-import byx.orm.DaoGenerator;
+import byx.orm.core.DaoGenerator;
 import byx.util.jdbc.JdbcUtils;
 
 /**
