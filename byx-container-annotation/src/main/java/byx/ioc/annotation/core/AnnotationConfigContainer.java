@@ -2,9 +2,6 @@ package byx.ioc.annotation.core;
 
 import byx.ioc.annotation.util.AnnotationScanner;
 import byx.ioc.core.AbstractContainer;
-import byx.ioc.core.ContainerCallback;
-
-import java.util.Comparator;
 
 /**
  * 通过注解来配置的容器

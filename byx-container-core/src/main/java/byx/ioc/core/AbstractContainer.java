@@ -2,12 +2,7 @@ package byx.ioc.core;
 
 import byx.ioc.exception.*;
 import byx.ioc.util.GraphUtils;
-import byx.ioc.util.JarUtils;
-import byx.ioc.util.OrderUtils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -19,7 +14,7 @@ import java.util.stream.Collectors;
  *
  * @author byx
  */
-public abstract class AbstractContainer implements Container, ObjectRegistry, ContainerContext {
+public abstract class AbstractContainer extends ExtendableContainer implements Container, ObjectRegistry, ContainerContext {
     /**
      * 保存所有ObjectDefinition
      */
@@ -36,94 +31,6 @@ public abstract class AbstractContainer implements Container, ObjectRegistry, Co
      * 通过调用ObjectDefinition的doWrap方法
      */
     private final Map<String, Supplier<Object>> cache2 = new HashMap<>();
-
-    /**
-     * 保存所有对象回调器
-     */
-    private static final List<ObjectCallback> OBJECT_CALLBACKS;
-
-    /**
-     * 保存所有容器回调器
-     */
-    private static final List<ContainerCallback> CONTAINER_CALLBACKS;
-
-    /**
-     * 保存所有值转换器
-     */
-    private static final List<ValueConverter> VALUE_CONVERTERS;
-
-    /**
-     * 额外导入的组件
-     */
-    private final static String COMPONENTS_EXPORT_FILE_NAME = "META-INF/components/components.export";
-    private final static List<Class<?>> IMPORT_COMPONENTS;
-
-    static {
-        // 加载扩展组件
-        OBJECT_CALLBACKS = OrderUtils.sort(loadObjectCallbacks());
-        CONTAINER_CALLBACKS = OrderUtils.sort(loadContainerCallbacks());
-        VALUE_CONVERTERS = loadValueConverters();
-
-        // 加载使用SPI导入的类
-        IMPORT_COMPONENTS = loadImportComponents();
-    }
-
-    /**
-     * 加载所有ObjectCallback
-     */
-    private static List<ObjectCallback> loadObjectCallbacks() {
-        List<ObjectCallback> ocs = new ArrayList<>();
-        for (ObjectCallback oc : ServiceLoader.load(ObjectCallback.class)) {
-            ocs.add(oc);
-        }
-        return ocs;
-    }
-
-    /**
-     * 加载所有ContainerCallback
-     */
-    private static List<ContainerCallback> loadContainerCallbacks() {
-        List<ContainerCallback> ccs = new ArrayList<>();
-        for (ContainerCallback cc : ServiceLoader.load(ContainerCallback.class)) {
-            ccs.add(cc);
-        }
-        return ccs;
-    }
-
-    /**
-     * 加载所有ValueConverter
-     */
-    private static List<ValueConverter> loadValueConverters() {
-        List<ValueConverter> vcs = new ArrayList<>();
-        for (ValueConverter vc : ServiceLoader.load(ValueConverter.class)) {
-            vcs.add(vc);
-        }
-        return vcs;
-    }
-
-    /**
-     * 加载使用SPI导入的类
-     */
-    private static List<Class<?>> loadImportComponents() {
-        List<Class<?>> components = new ArrayList<>();
-        try {
-            List<URL> urls = JarUtils.getJarResources(COMPONENTS_EXPORT_FILE_NAME);
-            for (URL url : urls) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-                reader.lines().forEach(line -> {
-                    try {
-                        components.add(Class.forName(line));
-                    } catch (ClassNotFoundException e) {
-                        throw new LoadJarResourceException(e);
-                    }
-                });
-            }
-        } catch (Exception e) {
-            throw new LoadJarResourceException(e);
-        }
-
-        return components;
-    }
 
     /**
      * 子类通过调用该方法来向容器中注册对象
@@ -145,7 +52,7 @@ public abstract class AbstractContainer implements Container, ObjectRegistry, Co
     }
 
     @Override
-    public  <T> T getObject(Class<T> type) {
+    public <T> T getObject(Class<T> type) {
         List<String> candidates = definitions.keySet().stream()
                 .filter(id -> type.isAssignableFrom(definitions.get(id).getType()))
                 .collect(Collectors.toList());
@@ -281,7 +188,7 @@ public abstract class AbstractContainer implements Container, ObjectRegistry, Co
             Object o = definition.doWrap(obj);
 
             // 回调afterObjectWrap
-            for (ObjectCallback oc : OBJECT_CALLBACKS) {
+            for (ObjectCallback oc : getObjectCallbacks()) {
                 o = oc.afterObjectWrap(new ObjectContext(o, definition.getType(), this, definition, id));
             }
 
@@ -292,7 +199,7 @@ public abstract class AbstractContainer implements Container, ObjectRegistry, Co
         definition.doInit(obj);
 
         // 回调afterObjectInit
-        for (ObjectCallback oc : OBJECT_CALLBACKS) {
+        for (ObjectCallback oc : getObjectCallbacks()) {
             oc.afterObjectInit(new ObjectContext(obj, definition.getType(), this, definition, id));
         }
 
@@ -384,22 +291,22 @@ public abstract class AbstractContainer implements Container, ObjectRegistry, Co
 
     @Override
     public List<ObjectCallback> getObjectCallbacks() {
-        return OBJECT_CALLBACKS;
+        return super.getObjectCallbacks();
     }
 
     @Override
     public List<ContainerCallback> getContainerCallbacks() {
-        return CONTAINER_CALLBACKS;
+        return super.getContainerCallbacks();
     }
 
     @Override
     public List<ValueConverter> getValueConverters() {
-        return VALUE_CONVERTERS;
+        return super.getValueConverters();
     }
 
     @Override
     public List<Class<?>> getImportComponents() {
-        return IMPORT_COMPONENTS;
+        return super.getImportComponents();
     }
 
     // 从ContainerContext继承 结束
