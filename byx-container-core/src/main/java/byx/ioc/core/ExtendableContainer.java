@@ -15,6 +15,8 @@ import java.util.ServiceLoader;
  * 可扩展的容器
  * 该容器初始化时会加载以下扩展组件：
  * ObjectCallback、ContainerCallback、ValueConverter、额外导入的组件
+ * 使用以下方法来获取这些扩展组件：
+ * getObjectCallbacks、getContainerCallbacks、getValueConverters、getImportComponents
  *
  * @author byx
  */

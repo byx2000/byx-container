@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  *
  * @author byx
  */
-public abstract class AbstractContainer extends ExtendableContainer implements Container, ObjectRegistry, ContainerContext {
+public abstract class AbstractContainer extends ExtendableContainer {
     /**
      * 保存所有ObjectDefinition
      */
@@ -33,13 +33,11 @@ public abstract class AbstractContainer extends ExtendableContainer implements C
     private final Map<String, Supplier<Object>> cache2 = new HashMap<>();
 
     /**
-     * 子类通过调用该方法来向容器中注册对象
-     *
+     * 向容器中注册对象
      * @param id id
      * @param definition 对象定义
      */
-    @Override
-    public void registerObject(String id, ObjectDefinition definition) {
+    protected void registerObject(String id, ObjectDefinition definition) {
         definitions.put(id, definition);
         checkCircularDependency();
     }
@@ -276,38 +274,4 @@ public abstract class AbstractContainer extends ExtendableContainer implements C
             throw new IdNotFoundException(id);
         }
     }
-
-    // 从ContainerContext继承
-
-    @Override
-    public Container getContainer() {
-        return this;
-    }
-
-    @Override
-    public ObjectRegistry getObjectRegistry() {
-        return this;
-    }
-
-    @Override
-    public List<ObjectCallback> getObjectCallbacks() {
-        return super.getObjectCallbacks();
-    }
-
-    @Override
-    public List<ContainerCallback> getContainerCallbacks() {
-        return super.getContainerCallbacks();
-    }
-
-    @Override
-    public List<ValueConverter> getValueConverters() {
-        return super.getValueConverters();
-    }
-
-    @Override
-    public List<Class<?>> getImportComponents() {
-        return super.getImportComponents();
-    }
-
-    // 从ContainerContext继承 结束
 }

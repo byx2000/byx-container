@@ -1,14 +1,16 @@
 package byx.ioc.annotation.core;
 
 import byx.ioc.annotation.util.AnnotationScanner;
-import byx.ioc.core.AbstractContainer;
+import byx.ioc.core.*;
+
+import java.util.List;
 
 /**
  * 通过注解来配置的容器
  *
  * @author byx
  */
-public class AnnotationConfigContainer extends AbstractContainer implements AnnotationConfigContainerContext {
+public class AnnotationConfigContainer extends AbstractContainer implements ObjectRegistry, AnnotationConfigContainerContext {
     private final AnnotationScanner scanner;
 
     /**
@@ -44,7 +46,46 @@ public class AnnotationConfigContainer extends AbstractContainer implements Anno
     }
 
     @Override
+    public void registerObject(String id, ObjectDefinition definition) {
+        super.registerObject(id, definition);
+    }
+
+    // 从AnnotationConfigContainerContext继承 开始
+
+    @Override
+    public Container getContainer() {
+        return this;
+    }
+
+    @Override
+    public ObjectRegistry getObjectRegistry() {
+        return this;
+    }
+
+    @Override
     public AnnotationScanner getAnnotationScanner() {
         return scanner;
     }
+
+    @Override
+    public List<ObjectCallback> getObjectCallbacks() {
+        return super.getObjectCallbacks();
+    }
+
+    @Override
+    public List<ContainerCallback> getContainerCallbacks() {
+        return super.getContainerCallbacks();
+    }
+
+    @Override
+    public List<ValueConverter> getValueConverters() {
+        return super.getValueConverters();
+    }
+
+    @Override
+    public List<Class<?>> getImportComponents() {
+        return super.getImportComponents();
+    }
+
+    // 从AnnotationConfigContainerContext继承 结束
 }
