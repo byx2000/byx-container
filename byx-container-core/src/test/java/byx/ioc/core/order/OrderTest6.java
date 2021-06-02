@@ -32,10 +32,6 @@ public class OrderTest6 {
 
     @Test
     public void test() {
-        A a = new A();
-        B b = new B();
-        C c = new C();
-        D d = new D();
-        assertThrows(CircularOrderException.class, () -> OrderUtils.sort(Arrays.asList(a, b, c, d)));
+        assertThrows(CircularOrderException.class, () -> OrderUtils.sort(Arrays.asList(A.class, B.class, C.class, D.class)));
     }
 }

@@ -32,11 +32,7 @@ public class OrderTest4 {
 
     @Test
     public void test() {
-        A a = new A();
-        B b = new B();
-        C c = new C();
-        D d = new D();
-        List<Object> objects = OrderUtils.sort(Arrays.asList(a, b, c, d));
-        assertEquals(Arrays.asList(d, c, a, b), objects);
+        List<Class<?>> objects = OrderUtils.sort(Arrays.asList(A.class, B.class, C.class, D.class));
+        assertEquals(Arrays.asList(D.class, C.class, A.class, B.class), objects);
     }
 }

@@ -21,9 +21,7 @@ public class OrderTest7 {
 
     @Test
     public void test() {
-        A a = new A();
-        B b = new B();
-        List<Object> objects = OrderUtils.sort(Arrays.asList(a, b));
-        assertEquals(Arrays.asList(b, a), objects);
+        List<Class<?>> objects = OrderUtils.sort(Arrays.asList(A.class, B.class));
+        assertEquals(Arrays.asList(B.class, A.class), objects);
     }
 }

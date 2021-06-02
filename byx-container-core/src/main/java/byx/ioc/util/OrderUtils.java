@@ -6,33 +6,28 @@ import byx.ioc.exception.CircularOrderException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * 组件排序工具类
+ * 类型排序工具类
  *
  * @author byx
  */
 public class OrderUtils {
     /**
-     * 根据Order注解对组件进行排序
-     * @param objects 组件列表
-     * @param <T> 类型
-     * @return 排序后的组件列表
+     * 根据Order注解对类型进行排序
+     * @param classes 类型列表
+     * @return 排序后的类型列表
      */
-    public static <T> List<T> sort(List<T> objects) {
-        boolean[][] adj = getAdjacencyMatrix(objects.stream()
-                .map(Object::getClass)
-                .collect(Collectors.toList()));
-        List<T> result = GraphUtils.topologicalSort(adj,
-                Comparator.comparingInt(i -> getOrderValue(objects.get(i).getClass())),
-                objects::get);
-        // 检测到环路
-        if (result.size() != objects.size()) {
+    public static List<Class<?>> sort(List<Class<?>> classes) {
+        boolean[][] adj = getAdjacencyMatrix(classes);
+        List<Class<?>> result = GraphUtils.topologicalSort(adj,
+                Comparator.comparingInt(i -> getOrderValue(classes.get(i))),
+                classes::get);
+        if (result.size() != classes.size()) {
             List<Class<?>> circular = new ArrayList<>();
-            for (T e : objects) {
-                if (!result.contains(e)) {
-                    circular.add(e.getClass());
+            for (Class<?> c : classes) {
+                if (!result.contains(c)) {
+                    circular.add(c);
                 }
             }
             throw new CircularOrderException(circular);
