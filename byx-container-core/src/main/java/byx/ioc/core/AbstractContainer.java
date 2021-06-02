@@ -95,6 +95,14 @@ public abstract class AbstractContainer extends ExtendableContainer {
                 .collect(Collectors.toSet());
     }
 
+    @Override
+    public Class<?> getType(String id) {
+        if (definitions.containsKey(id)) {
+            return definitions.get(id).getType();
+        }
+        throw new IdNotFoundException(id);
+    }
+
     /**
      * 创建依赖项
      */
