@@ -10,6 +10,7 @@ import javax.sql.DataSource;
  *
  * @author byx
  */
+@Component
 public class JdbcConfig {
     @Component
     public JdbcUtils jdbcUtils(DataSource dataSource) {

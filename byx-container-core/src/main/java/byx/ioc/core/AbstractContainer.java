@@ -1,6 +1,7 @@
 package byx.ioc.core;
 
 import byx.ioc.exception.*;
+import byx.ioc.util.ExtensionLoader;
 import byx.ioc.util.GraphUtils;
 
 import java.util.*;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * @author byx
  */
-public abstract class AbstractContainer extends ExtendableContainer {
+public abstract class AbstractContainer implements Container {
     /**
      * 保存所有ObjectDefinition
      */
@@ -281,5 +282,9 @@ public abstract class AbstractContainer extends ExtendableContainer {
         if (!definitions.containsKey(id)) {
             throw new IdNotFoundException(id);
         }
+    }
+
+    private List<ObjectCallback> getObjectCallbacks() {
+        return ExtensionLoader.getExtensionObjectsOfType(ObjectCallback.class);
     }
 }

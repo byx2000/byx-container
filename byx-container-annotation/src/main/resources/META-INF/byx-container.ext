@@ -1,3 +1,11 @@
+# ContainerCallback
+byx.ioc.annotation.callback.ComponentProcessor
+
+# ObjectCallback
+byx.ioc.annotation.callback.AutowiredProcessor
+byx.ioc.annotation.callback.InitProcessor
+
+# ValueConverter
 byx.ioc.annotation.converter.StringToInt
 byx.ioc.annotation.converter.StringToDouble
 byx.ioc.annotation.converter.StringToString

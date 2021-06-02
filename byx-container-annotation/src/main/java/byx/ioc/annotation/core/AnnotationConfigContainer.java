@@ -1,7 +1,9 @@
 package byx.ioc.annotation.core;
 
+import byx.ioc.annotation.annotation.Component;
 import byx.ioc.annotation.util.AnnotationScanner;
 import byx.ioc.core.*;
+import byx.ioc.util.ExtensionLoader;
 
 import java.util.List;
 
@@ -40,17 +42,14 @@ public class AnnotationConfigContainer extends AbstractContainer implements Obje
      */
     private void afterAnnotationConfigContainerInit() {
         // 回调所有AnnotationConfigContainerCallback
-        getContainerCallbacks().stream()
-                .filter(c -> c instanceof AnnotationConfigContainerCallback)
-                .forEach(c -> ((AnnotationConfigContainerCallback) c).afterAnnotationConfigContainerInit(this));
+        ExtensionLoader.getExtensionObjectsOfType(AnnotationConfigContainerCallback.class)
+                .forEach(c -> c.afterAnnotationConfigContainerInit(this));
     }
 
     @Override
     public void registerObject(String id, ObjectDefinition definition) {
         super.registerObject(id, definition);
     }
-
-    // 从AnnotationConfigContainerContext继承 开始
 
     @Override
     public Container getContainer() {
@@ -68,24 +67,12 @@ public class AnnotationConfigContainer extends AbstractContainer implements Obje
     }
 
     @Override
-    public List<ObjectCallback> getObjectCallbacks() {
-        return super.getObjectCallbacks();
-    }
-
-    @Override
-    public List<ContainerCallback> getContainerCallbacks() {
-        return super.getContainerCallbacks();
-    }
-
-    @Override
     public List<ValueConverter> getValueConverters() {
-        return super.getValueConverters();
+        return ExtensionLoader.getExtensionObjectsOfType(ValueConverter.class);
     }
 
     @Override
     public List<Class<?>> getImportComponents() {
-        return super.getImportComponents();
+        return ExtensionLoader.getExtensionClassesWithAnnotation(Component.class);
     }
-
-    // 从AnnotationConfigContainerContext继承 结束
 }

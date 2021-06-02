@@ -33,20 +33,6 @@ public interface AnnotationConfigContainerContext {
     AnnotationScanner getAnnotationScanner();
 
     /**
-     * 获取对象回调器
-     *
-     * @return ObjectCallback列表
-     */
-    List<ObjectCallback> getObjectCallbacks();
-
-    /**
-     * 获取容器回调器
-     *
-     * @return ContainerCallback列表
-     */
-    List<ContainerCallback> getContainerCallbacks();
-
-    /**
      * 获取值转换器
      *
      * @return ValueConverter列表

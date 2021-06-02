@@ -1,11 +1,9 @@
 package byx.ioc.annotation.test18;
 
-import byx.ioc.annotation.annotation.Component;
 import byx.ioc.core.ValueConverter;
 
 import java.util.Arrays;
 
-@Component
 public class UserConverter implements ValueConverter {
     @Override
     public Class<?> fromType() {
