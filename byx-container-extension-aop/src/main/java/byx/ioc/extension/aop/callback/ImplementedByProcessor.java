@@ -25,7 +25,7 @@ public class ImplementedByProcessor implements AnnotationConfigContainerCallback
                         }
 
                         @Override
-                        public Object getInstance(Object[] params) {
+                        public Object getInstance(Object[] dependencies) {
                             Object impl = ctx.getContainer().getObject(implType);
                             return ProxyUtils.implement(c, MethodInterceptor.delegateTo(impl));
                         }

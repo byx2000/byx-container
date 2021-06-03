@@ -40,15 +40,14 @@ public abstract class CircularDependencyResolvableContainer<D> implements Contai
      *
      * @param definition 对象定义
      * @param id 对象id
-     * @param params 实例化的参数
+     * @param dependencies 依赖项
      * @return 实例化的对象
      */
-    protected abstract Object doInstantiate(D definition, String id, Object[] params);
+    protected abstract Object doInstantiate(D definition, String id, Object[] dependencies);
 
     /**
      * 根据definition初始化对象
-     *
-     * @param definition 对象定义
+     *  @param definition 对象定义
      * @param id 对象id
      * @param obj 实例化后的对象
      */

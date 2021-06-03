@@ -62,12 +62,12 @@ public class AnnotationConfigContainer
 
     @Override
     protected Dependency[] getDependencies(ObjectDefinition definition) {
-        return definition.getInstanceDependencies();
+        return definition.getDependencies();
     }
 
     @Override
-    protected Object doInstantiate(ObjectDefinition definition, String id, Object[] params) {
-        return definition.getInstance(params);
+    protected Object doInstantiate(ObjectDefinition definition, String id, Object[] dependencies) {
+        return definition.getInstance(dependencies);
     }
 
     @Override

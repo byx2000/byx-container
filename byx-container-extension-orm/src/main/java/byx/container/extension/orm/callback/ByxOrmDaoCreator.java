@@ -24,13 +24,13 @@ public class ByxOrmDaoCreator implements AnnotationConfigContainerCallback {
                 }
 
                 @Override
-                public Dependency[] getInstanceDependencies() {
+                public Dependency[] getDependencies() {
                     return new Dependency[]{Dependency.type(JdbcUtils.class)};
                 }
 
                 @Override
-                public Object getInstance(Object[] params) {
-                    return new DaoGenerator((JdbcUtils) params[0]).generate(c);
+                public Object getInstance(Object[] dependencies) {
+                    return new DaoGenerator((JdbcUtils) dependencies[0]).generate(c);
                 }
             });
         });

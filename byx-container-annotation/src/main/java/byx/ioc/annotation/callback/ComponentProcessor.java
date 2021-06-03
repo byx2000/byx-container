@@ -68,14 +68,14 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
             }
 
             @Override
-            public Dependency[] getInstanceDependencies() {
+            public Dependency[] getDependencies() {
                 return dependencies;
             }
 
             @Override
-            public Object getInstance(Object[] params) {
+            public Object getInstance(Object[] dependencies) {
                 try {
-                    return constructor.newInstance(params);
+                    return constructor.newInstance(dependencies);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -196,18 +196,18 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
             }
 
             @Override
-            public Dependency[] getInstanceDependencies() {
+            public Dependency[] getDependencies() {
                 return dependencies;
             }
 
             @Override
-            public Object getInstance(Object[] params) {
+            public Object getInstance(Object[] dependencies) {
                 Object instance = (instanceId == null)
                         ? container.getObject(instanceType)
                         : container.getObject(instanceId);
                 try {
                     method.setAccessible(true);
-                    return method.invoke(instance, params);
+                    return method.invoke(instance, dependencies);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -243,7 +243,7 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
                 }
 
                 @Override
-                public Object getInstance(Object[] params) {
+                public Object getInstance(Object[] dependencies) {
                     return converter.convert(v.value());
                 }
             });
