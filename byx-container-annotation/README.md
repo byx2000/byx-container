@@ -675,7 +675,7 @@ ByxContainer对外提供3个扩展点：
 
     当存在多个`ObjectCallback`时，它们调用的先后顺序取决于`getOrder`返回的顺序值，数字小的先执行。
 
-    所有自定义的`ObjectCallback`的全限定类名需要写入`classpath/META-INF/services/byx.ioc.core.ObjectCallback`文件中，以换行分隔。
+    所有自定义的`ObjectCallback`的全限定类名需要写入`classpath/META-INF/services/byx.ioc.annotation.core.ObjectCallback`文件中，以换行分隔。
 
 * `components.export`
 

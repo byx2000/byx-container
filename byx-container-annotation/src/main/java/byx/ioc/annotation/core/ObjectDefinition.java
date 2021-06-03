@@ -1,4 +1,6 @@
-package byx.ioc.core;
+package byx.ioc.annotation.core;
+
+import byx.ioc.core.Dependency;
 
 /**
  * 封装对象实例化、初始化和包装逻辑

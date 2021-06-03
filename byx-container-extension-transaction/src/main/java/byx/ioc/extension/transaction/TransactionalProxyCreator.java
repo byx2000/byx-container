@@ -1,8 +1,8 @@
 package byx.ioc.extension.transaction;
 
 import byx.ioc.core.Container;
-import byx.ioc.core.ObjectCallback;
-import byx.ioc.core.ObjectContext;
+import byx.ioc.annotation.core.ObjectCallback;
+import byx.ioc.annotation.core.ObjectContext;
 import byx.transaction.TransactionManager;
 import byx.transaction.annotation.Transactional;
 import byx.util.jdbc.JdbcUtils;

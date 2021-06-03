@@ -13,8 +13,8 @@ import java.util.List;
  * @author byx
  */
 public class AnnotationConfigContainer
-        extends CircularDependencyResolvableContainer<ObjectDefinition>
-        implements ObjectRegistry, AnnotationConfigContainerContext {
+        extends CachedContainer<ObjectDefinition>
+        implements ObjectRegistry<ObjectDefinition>, AnnotationConfigContainerContext {
     /**
      * 注解扫描器
      */
@@ -97,7 +97,7 @@ public class AnnotationConfigContainer
     }
 
     @Override
-    public ObjectRegistry getObjectRegistry() {
+    public ObjectRegistry<ObjectDefinition> getObjectRegistry() {
         return this;
     }
 

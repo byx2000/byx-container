@@ -2,7 +2,7 @@ package byx.ioc.extension.aop.callback;
 
 import byx.ioc.annotation.core.AnnotationConfigContainerCallback;
 import byx.ioc.annotation.core.AnnotationConfigContainerContext;
-import byx.ioc.core.ObjectDefinition;
+import byx.ioc.annotation.core.ObjectDefinition;
 import byx.ioc.extension.aop.annotation.ImplementedBy;
 import byx.util.proxy.ProxyUtils;
 import byx.util.proxy.core.MethodInterceptor;

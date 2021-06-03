@@ -4,8 +4,8 @@ import byx.aop.ByxAOP;
 import byx.ioc.annotation.Order;
 import byx.ioc.annotation.callback.InitProcessor;
 import byx.ioc.core.Container;
-import byx.ioc.core.ObjectCallback;
-import byx.ioc.core.ObjectContext;
+import byx.ioc.annotation.core.ObjectCallback;
+import byx.ioc.annotation.core.ObjectContext;
 import byx.ioc.extension.aop.annotation.AdvisedBy;
 
 /**

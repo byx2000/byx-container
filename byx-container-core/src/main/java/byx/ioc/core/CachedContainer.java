@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @param <D> 对象定义的类型
  * @author byx
  */
-public abstract class CircularDependencyResolvableContainer<D> implements Container {
+public abstract class CachedContainer<D> implements Container {
     /**
      * 从definition获取对象类型
      *

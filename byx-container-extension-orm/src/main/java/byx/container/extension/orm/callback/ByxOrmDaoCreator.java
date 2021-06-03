@@ -4,7 +4,7 @@ import byx.container.extension.orm.annotation.Dao;
 import byx.ioc.annotation.core.AnnotationConfigContainerCallback;
 import byx.ioc.annotation.core.AnnotationConfigContainerContext;
 import byx.ioc.core.Dependency;
-import byx.ioc.core.ObjectDefinition;
+import byx.ioc.annotation.core.ObjectDefinition;
 import byx.orm.core.DaoGenerator;
 import byx.util.jdbc.JdbcUtils;
 

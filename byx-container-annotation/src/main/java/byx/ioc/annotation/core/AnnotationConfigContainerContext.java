@@ -23,7 +23,7 @@ public interface AnnotationConfigContainerContext {
      *
      * @return 对象注册器
      */
-    ObjectRegistry getObjectRegistry();
+    ObjectRegistry<ObjectDefinition> getObjectRegistry();
 
     /**
      * 获取AnnotationScanner

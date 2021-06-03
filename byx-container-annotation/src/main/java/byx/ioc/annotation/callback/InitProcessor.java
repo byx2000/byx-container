@@ -4,8 +4,8 @@ import byx.ioc.annotation.Order;
 import byx.ioc.annotation.annotation.Id;
 import byx.ioc.annotation.annotation.Init;
 import byx.ioc.core.Container;
-import byx.ioc.core.ObjectCallback;
-import byx.ioc.core.ObjectContext;
+import byx.ioc.annotation.core.ObjectCallback;
+import byx.ioc.annotation.core.ObjectContext;
 import byx.ioc.annotation.exception.MultiInitMethodDefException;
 
 import java.lang.annotation.Annotation;

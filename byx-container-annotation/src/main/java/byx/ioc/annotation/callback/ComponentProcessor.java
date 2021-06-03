@@ -3,6 +3,8 @@ package byx.ioc.annotation.callback;
 import byx.ioc.annotation.annotation.*;
 import byx.ioc.annotation.core.AnnotationConfigContainerCallback;
 import byx.ioc.annotation.core.AnnotationConfigContainerContext;
+import byx.ioc.annotation.core.ObjectDefinition;
+import byx.ioc.annotation.core.ValueConverter;
 import byx.ioc.annotation.exception.CannotRegisterInterfaceException;
 import byx.ioc.annotation.exception.ConstructorMultiDefException;
 import byx.ioc.annotation.exception.ConstructorNotFoundException;

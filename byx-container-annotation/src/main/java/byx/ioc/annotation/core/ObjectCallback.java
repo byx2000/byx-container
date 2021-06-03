@@ -1,4 +1,4 @@
-package byx.ioc.core;
+package byx.ioc.annotation.core;
 
 /**
  * 对象回调器
