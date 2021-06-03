@@ -1,7 +1,7 @@
 package byx.ioc.core;
 
 /**
- * 依赖项
+ * 容器依赖项
  *
  * @author byx
  */

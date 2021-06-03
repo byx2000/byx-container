@@ -1,7 +1,6 @@
 package byx.ioc.core;
 
 import byx.ioc.exception.*;
-import byx.ioc.util.ExtensionLoader;
 import byx.ioc.util.GraphUtils;
 
 import java.util.*;
@@ -9,17 +8,66 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * 抽象容器基类
- * 包含对扩展组件的加载和循环依赖的检测与处理
- * 自定义容器可直接继承该容器，实现一些自定义的功能
+ * 支持循环依赖解析的容器
+ * 该容器使用二级缓存机制进行循环依赖的处理
+ * 并使用拓扑排序实现循环依赖的检测
+ * 只支持单例组件
  *
+ * 该类实现了Container中的全部方法，同时开放了若干抽象方法供子类实现
+ *
+ * @param <D> 对象定义的类型
  * @author byx
  */
-public abstract class AbstractContainer implements Container {
+public abstract class CircularDependencyResolvableContainer<D> implements Container {
     /**
-     * 保存所有ObjectDefinition
+     * 从definition获取对象类型
+     *
+     * @param definition 对象定义
+     * @return 对象类型
      */
-    private final Map<String, ObjectDefinition> definitions = new HashMap<>();
+    protected abstract Class<?> getType(D definition);
+
+    /**
+     * 从definition获取对象依赖项
+     *
+     * @param definition 对象定义
+     * @return 依赖项数组
+     */
+    protected abstract Dependency[] getDependencies(D definition);
+
+    /**
+     * 根据definition实例化对象
+     *
+     * @param definition 对象定义
+     * @param id 对象id
+     * @param params 实例化的参数
+     * @return 实例化的对象
+     */
+    protected abstract Object doInstantiate(D definition, String id, Object[] params);
+
+    /**
+     * 根据definition初始化对象
+     *
+     * @param definition 对象定义
+     * @param id 对象id
+     * @param obj 实例化后的对象
+     */
+    protected abstract void doInit(D definition, String id, Object obj);
+
+    /**
+     * 根据definition包装对象
+     *
+     * @param definition 对象定义
+     * @param id 对象id
+     * @param obj 初始化后的对象
+     * @return 包装后的对象
+     */
+    protected abstract Object doWrap(D definition, String id, Object obj);
+
+    /**
+     * 保存所有(id, 对象定义)键值对
+     */
+    private final Map<String, D> definitions = new HashMap<>();
 
     /**
      * 一级缓存：存放已完全初始化的对象
@@ -27,25 +75,25 @@ public abstract class AbstractContainer implements Container {
     private final Map<String, Object> cache1 = new HashMap<>();
 
     /**
-     * 二级缓存：存放已实例化对象的工厂
-     * 该工厂包含对已实例化对象的代理操作
-     * 通过调用ObjectDefinition的doWrap方法
+     * 二级缓存：存放已实例化对象的工厂方法
+     * 该工厂方法包含对已实例化对象的包装操作
      */
     private final Map<String, Supplier<Object>> cache2 = new HashMap<>();
 
     /**
-     * 向容器中注册对象
+     * 注册对象定义
+     *
      * @param id id
      * @param definition 对象定义
      */
-    protected void registerObject(String id, ObjectDefinition definition) {
+    protected void registerObject(String id, D definition) {
         definitions.put(id, definition);
         checkCircularDependency();
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public  <T> T getObject(String id) {
+    public <T> T getObject(String id) {
         checkIdExist(id);
         return (T) createOrGetObject(id, definitions.get(id));
     }
@@ -53,7 +101,7 @@ public abstract class AbstractContainer implements Container {
     @Override
     public <T> T getObject(Class<T> type) {
         List<String> candidates = definitions.keySet().stream()
-                .filter(id -> type.isAssignableFrom(definitions.get(id).getType()))
+                .filter(id -> type.isAssignableFrom(getType(definitions.get(id))))
                 .collect(Collectors.toList());
 
         if (candidates.size() == 0) {
@@ -75,13 +123,11 @@ public abstract class AbstractContainer implements Container {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> Set<T> getObjects(Class<T> type) {
-        Set<Object> objects = definitions.keySet().stream()
-                .filter(id -> type.isAssignableFrom(definitions.get(id).getType()))
-                .map(id -> createOrGetObject(id, definitions.get(id)))
+        return definitions.keySet().stream()
+                .filter(id -> type.isAssignableFrom(getType(definitions.get(id))))
+                .map(id -> type.cast(createOrGetObject(id, definitions.get(id))))
                 .collect(Collectors.toSet());
-        return (Set<T>) objects;
     }
 
     @Override
@@ -92,21 +138,36 @@ public abstract class AbstractContainer implements Container {
     @Override
     public Set<Class<?>> getObjectTypes() {
         return definitions.values().stream()
-                .map(ObjectDefinition::getType)
+                .map(this::getType)
                 .collect(Collectors.toSet());
     }
 
     @Override
     public Class<?> getType(String id) {
         if (definitions.containsKey(id)) {
-            return definitions.get(id).getType();
+            return getType(definitions.get(id));
         }
         throw new IdNotFoundException(id);
     }
 
-    /**
-     * 创建依赖项
-     */
+    private void checkIdExist(String id) {
+        if (!definitions.containsKey(id)) {
+            throw new IdNotFoundException(id);
+        }
+    }
+
+    private String getTypeId(Class<?> type) {
+        List<String> candidates = definitions.keySet().stream()
+                .filter(id -> type.isAssignableFrom(getType(definitions.get(id))))
+                .collect(Collectors.toList());
+
+        if (candidates.size() != 1) {
+            return null;
+        }
+
+        return candidates.get(0);
+    }
+
     private Object createDependency(Dependency dependency) {
         if (dependency.getId() != null) {
             return getObject(dependency.getId());
@@ -116,30 +177,12 @@ public abstract class AbstractContainer implements Container {
         throw new BadDependencyException(dependency);
     }
 
-    /**
-     * 创建依赖数组
-     */
     private Object[] createDependencies(Dependency[] dependencies) {
         Object[] params = new Object[dependencies.length];
         for (int i = 0; i < dependencies.length; ++i) {
             params[i] = createDependency(dependencies[i]);
         }
         return params;
-    }
-
-    /**
-     * 获取类型对应的id
-     */
-    private String getTypeId(Class<?> type) {
-        List<String> candidates = definitions.keySet().stream()
-                .filter(id -> type.isAssignableFrom(definitions.get(id).getType()))
-                .collect(Collectors.toList());
-
-        if (candidates.size() != 1) {
-            return null;
-        }
-
-        return candidates.get(0);
     }
 
     /**
@@ -159,7 +202,34 @@ public abstract class AbstractContainer implements Container {
      *      6) 调用ObjectDefinition的doInit方法初始化对象（属性填充）
      *      7) 再次尝试从缓存中获取对象，这次一定能够获取到
      */
-    private Object createOrGetObject(String id, ObjectDefinition definition) {
+    private Object createOrGetObject(String id, D definition) {
+        Object obj;
+
+        if ((obj = searchInCache(id)) != null) {
+            return obj;
+        }
+
+        // 获取并创建对象实例化的依赖项
+        Object[] params = createDependencies(getDependencies(definition));
+
+        if ((obj = searchInCache(id)) != null) {
+            return obj;
+        }
+
+        // 实例化对象
+        obj = doInstantiate(definition, id, params);
+
+        // 将实例化后的对象加入二级缓存
+        Object finalObj = obj;
+        cache2.put(id, () -> doWrap(definition, id, finalObj));
+
+        // 初始化对象
+        doInit(definition, id, obj);
+
+        return createOrGetObject(id, definition);
+    }
+
+    private Object searchInCache(String id) {
         // 查找一级缓存，如果找到则直接返回
         if (cache1.containsKey(id)) {
             return cache1.get(id);
@@ -173,44 +243,8 @@ public abstract class AbstractContainer implements Container {
             return obj;
         }
 
-        // 获取并创建对象实例化的依赖项
-        Object[] params = createDependencies(definition.getInstanceDependencies());
-
-        // 查找一级缓存和二级缓存，如果找到则直接返回
-        if (cache1.containsKey(id)) {
-            return cache1.get(id);
-        }
-        if (cache2.containsKey(id)) {
-            Object obj = cache2.get(id).get();
-            cache2.remove(id);
-            cache1.put(id, obj);
-            return obj;
-        }
-
-        // 实例化对象
-        Object obj = definition.getInstance(params);
-
-        // 将实例化后的对象加入二级缓存
-        cache2.put(id, () -> {
-            Object o = definition.doWrap(obj);
-
-            // 回调afterObjectWrap
-            for (ObjectCallback oc : getObjectCallbacks()) {
-                o = oc.afterObjectWrap(new ObjectContext(o, definition.getType(), this, definition, id));
-            }
-
-            return o;
-        });
-
-        // 初始化对象
-        definition.doInit(obj);
-
-        // 回调afterObjectInit
-        for (ObjectCallback oc : getObjectCallbacks()) {
-            oc.afterObjectInit(new ObjectContext(obj, definition.getType(), this, definition, id));
-        }
-
-        return createOrGetObject(id, definition);
+        // 找不到
+        return null;
     }
 
     /**
@@ -238,7 +272,7 @@ public abstract class AbstractContainer implements Container {
         // 构建对象的构造函数依赖图
         for (int i = 0; i < n; ++i) {
             String id = ids.get(i);
-            Dependency[] dependencies = definitions.get(id).getInstanceDependencies();
+            Dependency[] dependencies = getDependencies(definitions.get(id));
             for (Dependency dep : dependencies) {
                 if (dep.getId() != null) {
                     int j = ids.indexOf(dep.getId());
@@ -273,18 +307,5 @@ public abstract class AbstractContainer implements Container {
             }
             throw new CircularDependencyException(circularIds);
         }
-    }
-
-    /**
-     * 检查id是否存在
-     */
-    private void checkIdExist(String id) {
-        if (!definitions.containsKey(id)) {
-            throw new IdNotFoundException(id);
-        }
-    }
-
-    private List<ObjectCallback> getObjectCallbacks() {
-        return ExtensionLoader.getExtensionObjectsOfType(ObjectCallback.class);
     }
 }
