@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @param <D> 对象定义的类型
  * @author byx
  */
-public abstract class CachedContainer<D> implements Container {
+public abstract class CachedContainer<D> implements Container, ObjectRegistry<D> {
     /**
      * 从definition获取对象类型
      *
@@ -85,10 +85,12 @@ public abstract class CachedContainer<D> implements Container {
      * @param id id
      * @param definition 对象定义
      */
-    protected void registerObject(String id, D definition) {
+    @Override
+    public void registerObject(String id, D definition) {
         definitions.put(id, definition);
         checkCircularDependency();
     }
+
 
     @Override
     @SuppressWarnings("unchecked")

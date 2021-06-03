@@ -12,9 +12,7 @@ import java.util.List;
  *
  * @author byx
  */
-public class AnnotationConfigContainer
-        extends CachedContainer<ObjectDefinition>
-        implements ObjectRegistry<ObjectDefinition>, AnnotationConfigContainerContext {
+public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition> implements AnnotationConfigContainerContext {
     /**
      * 注解扫描器
      */
