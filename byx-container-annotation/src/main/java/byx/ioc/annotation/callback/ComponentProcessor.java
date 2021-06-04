@@ -10,7 +10,7 @@ import byx.ioc.annotation.exception.ConstructorMultiDefException;
 import byx.ioc.annotation.exception.ConstructorNotFoundException;
 import byx.ioc.annotation.util.AnnotationScanner;
 import byx.ioc.core.*;
-import byx.ioc.exception.ValueConverterNotFoundException;
+import byx.ioc.annotation.exception.ValueConverterNotFoundException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;

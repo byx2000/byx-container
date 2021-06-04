@@ -118,7 +118,7 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
     public <T> T getObject(String id, Class<T> type) {
         Object obj = getObject(id);
         if (!type.isAssignableFrom(obj.getClass())) {
-            throw new TypeNotFoundException(type);
+            throw new ObjectNotFoundException(id, type);
         }
         return type.cast(obj);
     }
