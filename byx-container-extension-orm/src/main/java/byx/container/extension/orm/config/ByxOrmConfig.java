@@ -9,6 +9,7 @@ import byx.util.jdbc.JdbcUtils;
  *
  * @author byx
  */
+@Component
 public class ByxOrmConfig {
     @Component
     public DaoGenerator daoGenerator(JdbcUtils jdbcUtils) {
