@@ -1,8 +1,10 @@
 package byx.ioc.annotation.core;
 
-import byx.ioc.annotation.annotation.Component;
 import byx.ioc.annotation.util.AnnotationScanner;
-import byx.ioc.core.*;
+import byx.ioc.core.CachedContainer;
+import byx.ioc.core.Container;
+import byx.ioc.core.Dependency;
+import byx.ioc.core.ObjectRegistry;
 import byx.ioc.util.ExtensionLoader;
 
 import java.util.List;
@@ -20,15 +22,11 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
 
     private static final List<ObjectCallback> OBJECT_CALLBACKS;
     private static final List<AnnotationConfigContainerCallback> CONTAINER_CALLBACKS;
-    private static final List<Class<?>> IMPORT_COMPONENTS;
-    private static final List<ValueConverter> VALUE_CONVERTERS;
 
     static {
         // 加载扩展
-        OBJECT_CALLBACKS = ExtensionLoader.getExtensionObjectsOfType(ObjectCallback.class);
-        CONTAINER_CALLBACKS = ExtensionLoader.getExtensionObjectsOfType(AnnotationConfigContainerCallback.class);
-        IMPORT_COMPONENTS = ExtensionLoader.getExtensionClassesWithAnnotation(Component.class);
-        VALUE_CONVERTERS = ExtensionLoader.getExtensionObjectsOfType(ValueConverter.class);
+        OBJECT_CALLBACKS = ExtensionLoader.getExtensionInstancesOfType(ObjectCallback.class);
+        CONTAINER_CALLBACKS = ExtensionLoader.getExtensionInstancesOfType(AnnotationConfigContainerCallback.class);
     }
 
     /**
@@ -46,10 +44,7 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
      * @param basePackage 基准包名
      */
     public AnnotationConfigContainer(String basePackage) {
-        // 初始化注解扫描器
         scanner = new AnnotationScanner(basePackage);
-
-        // 容器初始化完毕
         afterAnnotationConfigContainerInit();
     }
 
@@ -102,16 +97,6 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
     @Override
     public AnnotationScanner getAnnotationScanner() {
         return scanner;
-    }
-
-    @Override
-    public List<ValueConverter> getValueConverters() {
-        return VALUE_CONVERTERS;
-    }
-
-    @Override
-    public List<Class<?>> getImportComponents() {
-        return IMPORT_COMPONENTS;
     }
 
     @Override

@@ -9,6 +9,8 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -45,15 +47,47 @@ public class ExtensionLoader {
     }
 
     /**
+     * 获取所有扩展类
+     *
+     * @return 扩展类列表
+     */
+    public static List<Class<?>> getExtensions() {
+        return EXTENSION_CLASSES;
+    }
+
+    /**
+     * 获取所有符合条件的扩展类，并执行自定义转换操作
+     *
+     * @param predicate 条件
+     * @param mapper 转换操作
+     * @param <T> 转换后的类型
+     * @return 结果列表
+     */
+    public static <T> List<T> getExtensions(Predicate<Class<?>> predicate, Function<Class<?>, T> mapper) {
+        return EXTENSION_CLASSES.stream()
+                .filter(predicate)
+                .map(mapper)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取所有符合条件的扩展类
+     *
+     * @param predicate 条件
+     * @return 扩展类列表
+     */
+    public static List<Class<?>> getExtensions(Predicate<Class<?>> predicate) {
+        return getExtensions(predicate, c -> c);
+    }
+
+    /**
      * 获取指定类型的所有扩展类
      *
      * @param type 类型
      * @return 类型列表
      */
-    public static List<Class<?>> getExtensionClassesOfType(Class<?> type) {
-        return EXTENSION_CLASSES.stream()
-                .filter(type::isAssignableFrom)
-                .collect(Collectors.toList());
+    public static List<Class<?>> getExtensionsOfType(Class<?> type) {
+        return getExtensions(type::isAssignableFrom);
     }
 
     /**
@@ -62,10 +96,8 @@ public class ExtensionLoader {
      * @param annotationType 注解类型
      * @return 类型列表
      */
-    public static List<Class<?>> getExtensionClassesWithAnnotation(Class<? extends Annotation> annotationType) {
-        return EXTENSION_CLASSES.stream()
-                .filter(c -> c.isAnnotationPresent(annotationType))
-                .collect(Collectors.toList());
+    public static List<Class<?>> getExtensionsWithAnnotation(Class<? extends Annotation> annotationType) {
+        return getExtensions(c -> c.isAnnotationPresent(annotationType));
     }
 
     /**
@@ -75,11 +107,8 @@ public class ExtensionLoader {
      * @param <T> 类型
      * @return 对象列表
      */
-    public static <T> List<T> getExtensionObjectsOfType(Class<T> type) {
-        return EXTENSION_CLASSES.stream()
-                .filter(type::isAssignableFrom)
-                .map(c -> type.cast(createByDefaultConstructor(c)))
-                .collect(Collectors.toList());
+    public static <T> List<T> getExtensionInstancesOfType(Class<T> type) {
+        return getExtensions(type::isAssignableFrom, c -> type.cast(createByDefaultConstructor(c)));
     }
 
     /**

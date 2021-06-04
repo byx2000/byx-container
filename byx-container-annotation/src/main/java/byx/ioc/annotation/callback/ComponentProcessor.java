@@ -11,6 +11,7 @@ import byx.ioc.annotation.exception.ConstructorNotFoundException;
 import byx.ioc.annotation.util.AnnotationScanner;
 import byx.ioc.core.*;
 import byx.ioc.annotation.exception.ValueConverterNotFoundException;
+import byx.ioc.util.ExtensionLoader;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -26,7 +27,7 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
     @Override
     public void afterAnnotationConfigContainerInit(AnnotationConfigContainerContext ctx) {
         // 获取使用SPI机制导入的类
-        Set<Class<?>> classes = new HashSet<>(ctx.getImportComponents());
+        List<Class<?>> classes = new ArrayList<>(ExtensionLoader.getExtensionsWithAnnotation(Component.class));
 
         // 获取注解扫描器
         AnnotationScanner scanner = ctx.getAnnotationScanner();
@@ -143,16 +144,7 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
         }
 
         // 解析依赖项
-        Dependency[] dependencies = new Dependency[paramTypes.length];
-        for (int i = 0; i < dependencies.length; ++i) {
-            if (paramIds[i] != null) {
-                dependencies[i] = Dependency.id(paramIds[i]);
-            } else {
-                dependencies[i] = Dependency.type(paramTypes[i]);
-            }
-        }
-
-        return dependencies;
+        return getDependencies(paramTypes, paramIds);
     }
 
     /**
@@ -179,14 +171,7 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
                 : null;
 
         // 解析依赖项
-        Dependency[] dependencies = new Dependency[paramTypes.length];
-        for (int i = 0; i < dependencies.length; ++i) {
-            if (paramIds[i] != null) {
-                dependencies[i] = Dependency.id(paramIds[i]);
-            } else {
-                dependencies[i] = Dependency.type(paramTypes[i]);
-            }
-        }
+        Dependency[] dependencies = getDependencies(paramTypes, paramIds);
 
         Container container = ctx.getContainer();
 
@@ -224,6 +209,18 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
         ctx.getObjectRegistry().registerObject(id, definition);
     }
 
+    private Dependency[] getDependencies(Class<?>[] paramTypes, String[] paramIds) {
+        Dependency[] dependencies = new Dependency[paramTypes.length];
+        for (int i = 0; i < dependencies.length; ++i) {
+            if (paramIds[i] != null) {
+                dependencies[i] = Dependency.id(paramIds[i]);
+            } else {
+                dependencies[i] = Dependency.type(paramTypes[i]);
+            }
+        }
+        return dependencies;
+    }
+
     /**
      * 处理Value注解
      */
@@ -236,7 +233,7 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
         }
 
         for (Value v : values) {
-            ValueConverter converter = getValueConverter(ctx, v.type());
+            ValueConverter converter = getValueConverter(v.type());
             String id = "".equals(v.id()) ? v.value() : v.id();
             ctx.getObjectRegistry().registerObject(id, new ObjectDefinition() {
                 @Override
@@ -255,8 +252,8 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
     /**
      * 查找值转换器
      */
-    private ValueConverter getValueConverter(AnnotationConfigContainerContext ctx, Class<?> toType) {
-        for (ValueConverter vc : ctx.getValueConverters()) {
+    private ValueConverter getValueConverter(Class<?> toType) {
+        for (ValueConverter vc : ExtensionLoader.getExtensionInstancesOfType(ValueConverter.class)) {
             if (vc.fromType() == String.class && vc.toType() == toType) {
                 return vc;
             }

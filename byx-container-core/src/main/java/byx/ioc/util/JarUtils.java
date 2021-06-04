@@ -1,5 +1,7 @@
 package byx.ioc.util;
 
+import byx.ioc.exception.LoadJarResourceException;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -13,6 +15,7 @@ import java.util.List;
 public class JarUtils {
     /**
      * 获取所有Jar包下的资源
+     *
      * @param resource 资源名
      * @return 资源URL列表
      */
@@ -27,7 +30,7 @@ public class JarUtils {
             }
             return result;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new LoadJarResourceException(e);
         }
     }
 }

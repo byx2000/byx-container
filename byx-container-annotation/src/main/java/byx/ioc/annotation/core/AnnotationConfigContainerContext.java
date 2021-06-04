@@ -1,9 +1,8 @@
 package byx.ioc.annotation.core;
 
 import byx.ioc.annotation.util.AnnotationScanner;
-import byx.ioc.core.*;
-
-import java.util.List;
+import byx.ioc.core.Container;
+import byx.ioc.core.ObjectRegistry;
 
 /**
  * AnnotationConfigContainer上下文信息
@@ -31,18 +30,4 @@ public interface AnnotationConfigContainerContext {
      * @return AnnotationScanner
      */
     AnnotationScanner getAnnotationScanner();
-
-    /**
-     * 获取值转换器
-     *
-     * @return ValueConverter列表
-     */
-    List<ValueConverter> getValueConverters();
-
-    /**
-     * 获取额外导入的组件
-     *
-     * @return 组件列表
-     */
-    List<Class<?>> getImportComponents();
 }
