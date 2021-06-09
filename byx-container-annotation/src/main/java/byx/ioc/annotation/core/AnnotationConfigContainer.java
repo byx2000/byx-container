@@ -72,7 +72,7 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
     protected void afterInit(ObjectDefinition definition, Object obj, String id) {
         OBJECT_CALLBACKS
                 .forEach(c -> c.afterObjectInit(
-                        new ObjectContext(obj, definition.getType(), this, definition, id)));
+                        new ObjectContext(obj, this, definition, id)));
     }
 
     @Override
@@ -80,7 +80,7 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
         final Object[] o = {definition.doWrap(obj)};
         OBJECT_CALLBACKS
                 .forEach(c -> o[0] = c.afterObjectWrap(
-                        new ObjectContext(o[0], definition.getType(), this, definition, id)));
+                        new ObjectContext(o[0], this, definition, id)));
         return o[0];
     }
 
