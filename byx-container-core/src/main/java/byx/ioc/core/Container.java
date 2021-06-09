@@ -66,4 +66,18 @@ public interface Container {
      * @return 对象类型
      */
     Class<?> getType(String id);
+
+    /**
+     * 指定id的对象是否存在
+     * @param id id
+     * @return 是否存在
+     */
+    boolean exist(String id);
+
+    /**
+     * 指定类型的对象的数量
+     * @param type 类型
+     * @return 数量
+     */
+    long count(Class<?> type);
 }

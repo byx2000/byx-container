@@ -151,6 +151,18 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
         throw new IdNotFoundException(id);
     }
 
+    @Override
+    public boolean exist(String id) {
+        return definitions.containsKey(id);
+    }
+
+    @Override
+    public long count(Class<?> type) {
+        return definitions.values().stream()
+                .filter(d -> type.isAssignableFrom(getType(d)))
+                .count();
+    }
+
     private void checkIdExist(String id) {
         if (!definitions.containsKey(id)) {
             throw new IdNotFoundException(id);

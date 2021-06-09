@@ -51,6 +51,8 @@ public class SimpleContainerTest {
         assertEquals(456, (int) container.getObject("v2"));
         assertThrows(IdNotFoundException.class, () -> container.getObject("xxx"));
         assertEquals(Set.of("v1", "v2"), container.getObjectIds());
+        assertTrue(container.exist("v1"));
+        assertFalse(container.exist("xxx"));
     }
 
     @Test
@@ -64,6 +66,10 @@ public class SimpleContainerTest {
         assertThrows(TypeNotFoundException.class, () -> container.getObject(Double.class));
         assertThrows(MultiTypeMatchException.class, () -> container.getObject(Integer.class));
         assertEquals(Set.of(Integer.class, String.class), container.getObjectTypes());
+        assertEquals(Set.of(123, 456), container.getObjects(Integer.class));
+        assertEquals(2, container.count(Integer.class));
+        assertEquals(1, container.count(String.class));
+        assertEquals(0, container.count(Double.class));
     }
 
     @Test

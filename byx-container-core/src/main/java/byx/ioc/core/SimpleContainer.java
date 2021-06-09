@@ -108,4 +108,16 @@ public abstract class SimpleContainer<D> implements Container, ObjectRegistry<D>
                 .filter(d -> type.isAssignableFrom(doGetType(d)))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean exist(String id) {
+        return definitions.containsKey(id);
+    }
+
+    @Override
+    public long count(Class<?> type) {
+        return definitions.values().stream()
+                .filter(d -> type.isAssignableFrom(doGetType(d)))
+                .count();
+    }
 }
