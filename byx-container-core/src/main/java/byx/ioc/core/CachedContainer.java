@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 public abstract class CachedContainer<D> implements Container, ObjectRegistry<D> {
     /**
-     * 从definition获取对象类型
+     * 模板方法：获取对象类型
      *
      * @param definition 对象定义
      * @return 对象类型
@@ -28,7 +28,7 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
     protected abstract Class<?> getType(D definition);
 
     /**
-     * 从definition获取对象依赖项
+     * 模板方法：获取对象实例化依赖项
      *
      * @param definition 对象定义
      * @return 依赖项数组
@@ -36,32 +36,49 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
     protected abstract Dependency[] getDependencies(D definition);
 
     /**
-     * 根据definition实例化对象
+     * 模板方法：实例化对象
      *
      * @param definition 对象定义
-     * @param id 对象id
-     * @param dependencies 依赖项
+     * @param dependencies 对象实例化依赖项
      * @return 实例化的对象
      */
-    protected abstract Object doInstantiate(D definition, String id, Object[] dependencies);
+    protected abstract Object doInstantiate(D definition, Object[] dependencies);
 
     /**
-     * 根据definition初始化对象
-     *  @param definition 对象定义
-     * @param id 对象id
-     * @param obj 实例化后的对象
-     */
-    protected abstract void doInit(D definition, String id, Object obj);
-
-    /**
-     * 根据definition包装对象
+     * 模板方法：对象实例化后回调
      *
      * @param definition 对象定义
-     * @param id 对象id
-     * @param obj 初始化后的对象
-     * @return 包装后的对象
+     * @param obj 实例化后的对象实例
+     * @param id 对象注册id
      */
-    protected abstract Object doWrap(D definition, String id, Object obj);
+    protected void afterInstantiate(D definition, Object obj, String id) {}
+
+    /**
+     * 模板方法：初始化对象
+     *
+     * @param definition 对象定义
+     * @param obj 实例化后的对象
+     */
+    protected abstract void doInit(D definition, Object obj);
+
+    /**
+     * 模板方法：对象初始化后回调
+     *
+     * @param definition 对象定义
+     * @param obj 初始化后的对象实例
+     * @param id 对象注册id
+     */
+    protected void afterInit(D definition, Object obj, String id) {}
+
+    /**
+     * 模板方法：包装对象
+     *
+     * @param definition 对象定义
+     * @param obj 初始化后的对象
+     * @return 初始化后的对象
+     * @param id 对象注册id
+     */
+    protected abstract Object doWrap(D definition, Object obj, String id);
 
     /**
      * 保存所有(id, 对象定义)键值对
@@ -230,14 +247,16 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
         }
 
         // 实例化对象
-        obj = doInstantiate(definition, id, params);
+        obj = doInstantiate(definition, params);
+        afterInstantiate(definition, obj, id);
 
         // 将实例化后的对象加入二级缓存
         Object finalObj = obj;
-        cache2.put(id, () -> doWrap(definition, id, finalObj));
+        cache2.put(id, () -> doWrap(definition, finalObj, id));
 
         // 初始化对象
-        doInit(definition, id, obj);
+        doInit(definition, obj);
+        afterInit(definition, obj, id);
 
         return createOrGetObject(id, definition);
     }

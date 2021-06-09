@@ -59,25 +59,25 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
     }
 
     @Override
-    protected Object doInstantiate(ObjectDefinition definition, String id, Object[] dependencies) {
+    protected Object doInstantiate(ObjectDefinition definition, Object[] dependencies) {
         return definition.getInstance(dependencies);
     }
 
     @Override
-    protected void doInit(ObjectDefinition definition, String id, Object obj) {
+    protected void doInit(ObjectDefinition definition, Object obj) {
         definition.doInit(obj);
+    }
 
-        // 执行扩展回调
+    @Override
+    protected void afterInit(ObjectDefinition definition, Object obj, String id) {
         OBJECT_CALLBACKS
                 .forEach(c -> c.afterObjectInit(
                         new ObjectContext(obj, definition.getType(), this, definition, id)));
     }
 
     @Override
-    protected Object doWrap(ObjectDefinition definition, String id, Object obj) {
+    protected Object doWrap(ObjectDefinition definition, Object obj, String id) {
         final Object[] o = {definition.doWrap(obj)};
-
-        // 执行扩展回调
         OBJECT_CALLBACKS
                 .forEach(c -> o[0] = c.afterObjectWrap(
                         new ObjectContext(o[0], definition.getType(), this, definition, id)));
@@ -105,7 +105,6 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
     }
 
     private void afterAnnotationConfigContainerInit() {
-        // 回调所有AnnotationConfigContainerCallback
         CONTAINER_CALLBACKS.forEach(c -> c.afterAnnotationConfigContainerInit(this));
     }
 }
