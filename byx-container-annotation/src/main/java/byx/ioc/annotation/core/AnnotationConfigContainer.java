@@ -66,13 +66,13 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
     }
 
     @Override
-    protected void doInit(ObjectDefinition definition, Object obj, String id) {
+    protected void initObject(ObjectDefinition definition, Object obj, String id) {
         definition.doInit(obj);
         OBJECT_CALLBACKS.forEach(c -> c.afterObjectInit(new ObjectContext(obj, this, definition, id)));
     }
 
     @Override
-    protected Object doReplace(ObjectDefinition definition, Object obj, String id) {
+    protected Object replaceObject(ObjectDefinition definition, Object obj, String id) {
         final Object[] o = {definition.doReplace(obj)};
         OBJECT_CALLBACKS.forEach(c -> o[0] = c.replaceObject(new ObjectContext(o[0], this, definition, id)));
         return o[0];

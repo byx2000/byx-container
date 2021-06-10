@@ -36,7 +36,7 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
     protected abstract Dependency[] getDependencies(D definition);
 
     /**
-     * 模板方法：实例化对象
+     * 模板方法：获取对象实例
      *
      * @param definition 对象定义
      * @param dependencies 对象实例化依赖项
@@ -52,7 +52,7 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
      * @param obj 实例化后的对象
      * @param id 对象注册id
      */
-    protected abstract void doInit(D definition, Object obj, String id);
+    protected abstract void initObject(D definition, Object obj, String id);
 
     /**
      * 模板方法：替换对象
@@ -62,7 +62,7 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
      * @return 初始化后的对象
      * @param id 对象注册id
      */
-    protected abstract Object doReplace(D definition, Object obj, String id);
+    protected abstract Object replaceObject(D definition, Object obj, String id);
 
     /**
      * 保存所有(id, 对象定义)键值对
@@ -235,10 +235,10 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
 
         // 将实例化后的对象加入二级缓存
         Object finalObj = obj;
-        cache2.put(id, () -> doReplace(definition, finalObj, id));
+        cache2.put(id, () -> replaceObject(definition, finalObj, id));
 
         // 初始化对象
-        doInit(definition, obj, id);
+        initObject(definition, obj, id);
 
         return createOrGetObject(id, definition);
     }
