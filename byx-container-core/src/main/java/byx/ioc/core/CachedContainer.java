@@ -40,45 +40,29 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
      *
      * @param definition 对象定义
      * @param dependencies 对象实例化依赖项
+     * @param id 对象注册id
      * @return 实例化的对象
      */
-    protected abstract Object doInstantiate(D definition, Object[] dependencies);
-
-    /**
-     * 模板方法：对象实例化后回调
-     *
-     * @param definition 对象定义
-     * @param obj 实例化后的对象实例
-     * @param id 对象注册id
-     */
-    protected void afterInstantiate(D definition, Object obj, String id) {}
+    protected abstract Object getInstance(D definition, Object[] dependencies, String id);
 
     /**
      * 模板方法：初始化对象
      *
      * @param definition 对象定义
      * @param obj 实例化后的对象
-     */
-    protected abstract void doInit(D definition, Object obj);
-
-    /**
-     * 模板方法：对象初始化后回调
-     *
-     * @param definition 对象定义
-     * @param obj 初始化后的对象实例
      * @param id 对象注册id
      */
-    protected void afterInit(D definition, Object obj, String id) {}
+    protected abstract void doInit(D definition, Object obj, String id);
 
     /**
-     * 模板方法：包装对象
+     * 模板方法：替换对象
      *
      * @param definition 对象定义
      * @param obj 初始化后的对象
      * @return 初始化后的对象
      * @param id 对象注册id
      */
-    protected abstract Object doWrap(D definition, Object obj, String id);
+    protected abstract Object doReplace(D definition, Object obj, String id);
 
     /**
      * 保存所有(id, 对象定义)键值对
@@ -247,16 +231,14 @@ public abstract class CachedContainer<D> implements Container, ObjectRegistry<D>
         }
 
         // 实例化对象
-        obj = doInstantiate(definition, params);
-        afterInstantiate(definition, obj, id);
+        obj = getInstance(definition, params, id);
 
         // 将实例化后的对象加入二级缓存
         Object finalObj = obj;
-        cache2.put(id, () -> doWrap(definition, finalObj, id));
+        cache2.put(id, () -> doReplace(definition, finalObj, id));
 
         // 初始化对象
-        doInit(definition, obj);
-        afterInit(definition, obj, id);
+        doInit(definition, obj, id);
 
         return createOrGetObject(id, definition);
     }

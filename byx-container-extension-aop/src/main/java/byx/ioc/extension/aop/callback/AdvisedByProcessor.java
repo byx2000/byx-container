@@ -16,7 +16,7 @@ import byx.ioc.extension.aop.annotation.AdvisedBy;
 @Order(before = InitProcessor.class)
 public class AdvisedByProcessor implements ObjectCallback {
     @Override
-    public Object afterObjectWrap(ObjectContext ctx) {
+    public Object replaceObject(ObjectContext ctx) {
         Object obj = ctx.getObject();
         if (obj == null) {
             return null;

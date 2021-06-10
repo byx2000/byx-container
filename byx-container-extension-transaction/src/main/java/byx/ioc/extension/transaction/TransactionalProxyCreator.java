@@ -16,7 +16,7 @@ import java.util.Arrays;
  */
 public class TransactionalProxyCreator implements ObjectCallback {
     @Override
-    public Object afterObjectWrap(ObjectContext ctx) {
+    public Object replaceObject(ObjectContext ctx) {
         // 如果对象的某个方法标注了Transaction注解，则返回事务增强代理对象
         // 否则返回原对象
         Object obj = ctx.getObject();

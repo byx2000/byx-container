@@ -59,28 +59,22 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
     }
 
     @Override
-    protected Object doInstantiate(ObjectDefinition definition, Object[] dependencies) {
-        return definition.getInstance(dependencies);
+    protected Object getInstance(ObjectDefinition definition, Object[] dependencies, String id) {
+        Object obj = definition.getInstance(dependencies);
+        OBJECT_CALLBACKS.forEach(c -> c.afterObjectInstantiate(new ObjectContext(obj, this, definition, id)));
+        return obj;
     }
 
     @Override
-    protected void doInit(ObjectDefinition definition, Object obj) {
+    protected void doInit(ObjectDefinition definition, Object obj, String id) {
         definition.doInit(obj);
+        OBJECT_CALLBACKS.forEach(c -> c.afterObjectInit(new ObjectContext(obj, this, definition, id)));
     }
 
     @Override
-    protected void afterInit(ObjectDefinition definition, Object obj, String id) {
-        OBJECT_CALLBACKS
-                .forEach(c -> c.afterObjectInit(
-                        new ObjectContext(obj, this, definition, id)));
-    }
-
-    @Override
-    protected Object doWrap(ObjectDefinition definition, Object obj, String id) {
-        final Object[] o = {definition.doWrap(obj)};
-        OBJECT_CALLBACKS
-                .forEach(c -> o[0] = c.afterObjectWrap(
-                        new ObjectContext(o[0], this, definition, id)));
+    protected Object doReplace(ObjectDefinition definition, Object obj, String id) {
+        final Object[] o = {definition.doReplace(obj)};
+        OBJECT_CALLBACKS.forEach(c -> o[0] = c.replaceObject(new ObjectContext(o[0], this, definition, id)));
         return o[0];
     }
 

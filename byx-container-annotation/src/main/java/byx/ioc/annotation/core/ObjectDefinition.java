@@ -43,12 +43,12 @@ public interface ObjectDefinition {
     }
 
     /**
-     * 包装对象
+     * 替换对象
      *
      * @param obj 初始化后的对象
      * @return 包装后的对象
      */
-    default Object doWrap(Object obj) {
+    default Object doReplace(Object obj) {
         return obj;
     }
 }
