@@ -1,6 +1,6 @@
 package byx.ioc.annotation.core;
 
-import byx.ioc.annotation.util.AnnotationScanner;
+import byx.ioc.annotation.util.PackageScanner;
 import byx.ioc.core.CachedContainer;
 import byx.ioc.core.Container;
 import byx.ioc.core.Dependency;
@@ -15,11 +15,7 @@ import java.util.List;
  * @author byx
  */
 public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition> implements AnnotationConfigContainerContext {
-    /**
-     * 注解扫描器
-     */
-    private final AnnotationScanner scanner;
-
+    private final PackageScanner packageScanner;
     private static final List<ObjectCallback> OBJECT_CALLBACKS;
     private static final List<AnnotationConfigContainerCallback> CONTAINER_CALLBACKS;
 
@@ -44,7 +40,7 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
      * @param basePackage 基准包名
      */
     public AnnotationConfigContainer(String basePackage) {
-        scanner = new AnnotationScanner(basePackage);
+        packageScanner = new PackageScanner(basePackage);
         afterAnnotationConfigContainerInit();
     }
 
@@ -89,8 +85,8 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
     }
 
     @Override
-    public AnnotationScanner getAnnotationScanner() {
-        return scanner;
+    public PackageScanner getPackageScanner() {
+        return packageScanner;
     }
 
     @Override

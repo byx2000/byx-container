@@ -1,6 +1,6 @@
 package byx.ioc.annotation.core;
 
-import byx.ioc.annotation.util.AnnotationScanner;
+import byx.ioc.annotation.util.PackageScanner;
 import byx.ioc.core.Container;
 import byx.ioc.core.ObjectRegistry;
 
@@ -29,5 +29,7 @@ public interface AnnotationConfigContainerContext {
      *
      * @return AnnotationScanner
      */
-    AnnotationScanner getAnnotationScanner();
+    //AnnotationScanner getAnnotationScanner();
+
+    PackageScanner getPackageScanner();
 }

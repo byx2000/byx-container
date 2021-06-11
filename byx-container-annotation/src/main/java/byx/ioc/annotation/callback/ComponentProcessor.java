@@ -8,15 +8,19 @@ import byx.ioc.annotation.core.ValueConverter;
 import byx.ioc.annotation.exception.CannotRegisterInterfaceException;
 import byx.ioc.annotation.exception.ConstructorMultiDefException;
 import byx.ioc.annotation.exception.ConstructorNotFoundException;
-import byx.ioc.annotation.util.AnnotationScanner;
-import byx.ioc.core.*;
 import byx.ioc.annotation.exception.ValueConverterNotFoundException;
+import byx.ioc.annotation.util.ClassPredicates;
+import byx.ioc.annotation.util.PackageScanner;
+import byx.ioc.core.Container;
+import byx.ioc.core.Dependency;
 import byx.ioc.util.ExtensionLoader;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 处理Component注解
@@ -30,15 +34,15 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
         List<Class<?>> classes = new ArrayList<>(ExtensionLoader.getExtensionsWithAnnotation(Component.class));
 
         // 获取注解扫描器
-        AnnotationScanner scanner = ctx.getAnnotationScanner();
+        PackageScanner scanner = ctx.getPackageScanner();
 
         // 扫描使用Import注解导入的类
-        scanner.getClassesAnnotatedBy(Import.class).stream()
+        scanner.getClasses(ClassPredicates.hasAnnotation(Import.class)).stream()
                 .flatMap(c -> Arrays.stream(c.getAnnotation(Import.class).value().clone()))
                 .forEach(classes::add);
 
         // 扫描指定包下的所有类
-        classes.addAll(scanner.getClassesAnnotatedBy(Component.class));
+        classes.addAll(scanner.getClasses(ClassPredicates.hasAnnotation(Component.class)));
 
         // 执行注解解析操作
         classes.forEach(c -> processClass(c, ctx));
