@@ -1,5 +1,6 @@
 # ContainerCallback
 byx.ioc.annotation.callback.ComponentProcessor
+byx.ioc.annotation.callback.ValueProcessor
 
 # ObjectCallback
 byx.ioc.annotation.callback.AutowiredProcessor
