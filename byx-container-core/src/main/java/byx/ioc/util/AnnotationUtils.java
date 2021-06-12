@@ -1,4 +1,4 @@
-package byx.ioc.annotation.util;
+package byx.ioc.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;

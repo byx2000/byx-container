@@ -10,7 +10,7 @@ import byx.ioc.annotation.core.ObjectDefinition;
 import byx.ioc.annotation.exception.CannotRegisterInterfaceException;
 import byx.ioc.annotation.exception.ConstructorMultiDefException;
 import byx.ioc.annotation.exception.ConstructorNotFoundException;
-import byx.ioc.annotation.util.ClassPredicates;
+import byx.ioc.util.ClassPredicates;
 import byx.ioc.annotation.util.PackageScanner;
 import byx.ioc.core.Container;
 import byx.ioc.core.Dependency;

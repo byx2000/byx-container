@@ -7,7 +7,7 @@ import byx.ioc.annotation.core.AnnotationConfigContainerContext;
 import byx.ioc.annotation.core.ObjectDefinition;
 import byx.ioc.annotation.core.ValueConverter;
 import byx.ioc.annotation.exception.ValueConverterNotFoundException;
-import byx.ioc.annotation.util.ClassPredicates;
+import byx.ioc.util.ClassPredicates;
 import byx.ioc.annotation.util.PackageScanner;
 import byx.ioc.util.ExtensionLoader;
 
