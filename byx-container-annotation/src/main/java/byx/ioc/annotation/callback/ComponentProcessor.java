@@ -33,7 +33,7 @@ public class ComponentProcessor implements AnnotationConfigContainerCallback {
         // 1. 包下所有标注了Component注解的类
         // 2. 所有标注了Component注解的扩展类
         // 3. 使用Import注解导入的类
-        List<Class<?>> classes = new ArrayList<>(ExtensionLoader.getExtensionsWithAnnotation(Component.class));
+        List<Class<?>> classes = new ArrayList<>(ExtensionLoader.getExtensions(ClassPredicates.hasAnnotation(Component.class)));
         PackageScanner scanner = ctx.getPackageScanner();
         scanner.getClasses(ClassPredicates.hasAnnotation(Import.class)).stream()
                 .flatMap(c -> Arrays.stream(c.getAnnotation(Import.class).value().clone()))

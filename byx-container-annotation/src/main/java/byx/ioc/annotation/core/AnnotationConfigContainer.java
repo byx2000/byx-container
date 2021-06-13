@@ -5,6 +5,7 @@ import byx.ioc.core.CachedContainer;
 import byx.ioc.core.Container;
 import byx.ioc.core.Dependency;
 import byx.ioc.core.ObjectRegistry;
+import byx.ioc.util.ClassPredicates;
 import byx.ioc.util.ExtensionLoader;
 
 import java.util.List;
@@ -21,8 +22,12 @@ public class AnnotationConfigContainer extends CachedContainer<ObjectDefinition>
 
     static {
         // 加载扩展
-        OBJECT_CALLBACKS = ExtensionLoader.getExtensionInstancesOfType(ObjectCallback.class);
-        CONTAINER_CALLBACKS = ExtensionLoader.getExtensionInstancesOfType(AnnotationConfigContainerCallback.class);
+        OBJECT_CALLBACKS = ExtensionLoader.getExtensions(
+                ClassPredicates.isAssignableTo(ObjectCallback.class),
+                ExtensionLoader.createByDefaultConstructor());
+        CONTAINER_CALLBACKS = ExtensionLoader.getExtensions(
+                ClassPredicates.isAssignableTo(AnnotationConfigContainerCallback.class),
+                ExtensionLoader.createByDefaultConstructor());
     }
 
     /**

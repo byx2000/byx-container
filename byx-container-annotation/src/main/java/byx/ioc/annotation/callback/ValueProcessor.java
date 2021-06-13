@@ -12,6 +12,7 @@ import byx.ioc.annotation.util.PackageScanner;
 import byx.ioc.util.ExtensionLoader;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * 处理Value注解
@@ -29,7 +30,10 @@ public class ValueProcessor implements AnnotationConfigContainerCallback {
     }
 
     private ValueConverter getValueConverter(Class<?> toType) {
-        for (ValueConverter vc : ExtensionLoader.getExtensionInstancesOfType(ValueConverter.class)) {
+        List<ValueConverter> converters = ExtensionLoader.getExtensions(
+                ClassPredicates.isAssignableTo(ValueConverter.class),
+                ExtensionLoader.createByDefaultConstructor());
+        for (ValueConverter vc : converters) {
             if (vc.fromType() == String.class && vc.toType() == toType) {
                 return vc;
             }
