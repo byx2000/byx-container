@@ -18,10 +18,6 @@ public class AdvisedByProcessor implements ObjectCallback {
     @Override
     public Object replaceObject(ObjectContext ctx) {
         Object obj = ctx.getObject();
-        if (obj == null) {
-            return null;
-        }
-
         Container container = ctx.getContainer();
 
         // 如果标注了AdviceBy注解，则创建并返回AOP代理对象
