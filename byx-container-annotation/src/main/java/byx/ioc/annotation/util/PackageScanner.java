@@ -3,8 +3,10 @@ package byx.ioc.annotation.util;
 import byx.ioc.annotation.exception.PackageScanException;
 
 import java.io.File;
-import java.net.URI;
-import java.util.*;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -35,8 +37,8 @@ public class PackageScanner {
     public PackageScanner(String packageName) {
         try {
             String packagePath = packageName.replace(".", File.separator);
-            URI uri = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("")).toURI();
-            File classpath = new File(uri);
+            URL url = Thread.currentThread().getContextClassLoader().getResource(File.separator);
+            File classpath = new File(Objects.requireNonNull(url).toURI());
             File basePath = new File(classpath, packagePath);
             traverseAllClassFiles(classpath.getAbsolutePath(), basePath);
         } catch (Exception e) {
